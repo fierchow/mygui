@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garry's Mod HTML F4 Menu - NEXUS CITY RP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Убираем белую focus-обводку у кнопок/полей */
+        * { outline: none !important; -webkit-tap-highlight-color: transparent; }
+        button::-moz-focus-inner { border: 0; }
+        button:focus, button:focus-visible { outline: none !important; }
+
+        :root {
+            --accent-color: #00f2fe;
+            --accent-secondary: #00c6ff;
+            --accent-glow: rgba(0, 242, 254, 0.3);
+            --accent-border: rgba(0, 242, 254, 0.5);
+            --accent-bg: rgba(0, 242, 254, 0.18);
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
+
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Liquid Glass 27 Styling */
+        .liquid-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+            backdrop-filter: blur(28px) saturate(210%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.22) !important;
+            box-shadow: 
+                0 16px 40px 0 rgba(0, 0, 0, 0.65), 
+                inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 2px 0 rgba(0, 0, 0, 0.4),
+                0 0 25px var(--accent-glow) !important;
+        }
+
+        .liquid-glass-sub {
+            background: rgba(20, 26, 38, 0.65) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 1rem !important;
+            clip-path: inset(0 round 1rem) !important;
+        }
+
+        .liquid-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .liquid-shine::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-25deg);
+            animation: liquidGlare 6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes liquidGlare {
+            0% { left: -100%; }
+            30% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.25) 50%,
+                rgba(0, 0, 0, 0.25)
+            );
+            background-size: 100% 4px;
+        }
+
+        .theme-active-tab {
+            background: linear-gradient(90deg, var(--accent-bg), rgba(255, 255, 255, 0.05)) !important;
+            border-color: var(--accent-border) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px var(--accent-glow) !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex items-center justify-center overflow-hidden select-none relative" style="background: radial-gradient(circle at 15% 20%, rgba(0,242,254,0.28) 0%, rgba(0,0,0,0) 45%), radial-gradient(circle at 85% 75%, rgba(168,85,247,0.30) 0%, rgba(0,0,0,0) 50%), radial-gradient(circle at 55% 45%, rgba(59,130,246,0.22) 0%, rgba(0,0,0,0) 55%), linear-gradient(135deg, #08121f 0%, #020617 55%, #0a1120 100%); background-size: cover;">
+
+    <div class="absolute inset-0 bg-slate-950/35" style="backdrop-filter: blur(6px) saturate(140%); -webkit-backdrop-filter: blur(6px) saturate(140%);"></div>
+    <div class="absolute inset-0 scanlines opacity-30 pointer-events-none"></div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <!-- Main F4 Window -->
+    <main id="mainFrame" class="relative w-[1140px] h-[720px] max-w-[96vw] max-h-[94vh] liquid-glass rounded-3xl flex flex-col overflow-hidden z-10 shadow-2xl transition-all duration-300">
+        
+        <!-- Header Bar -->
+        <header id="mainHeader" class="h-16 bg-slate-900/80 border-b border-white/15 px-5 flex items-center justify-between shrink-0 relative liquid-shine transition-all duration-300">
+            <div id="headerBanner" class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-cyan-500/30">
+                    N
+                </div>
+                <div>
+                    <h1 class="font-black text-xl text-white tracking-wider flex items-center gap-2">
+                        NEXUS CITY RP
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Donate Currency Header Badge -->
+                <div class="liquid-glass-sub px-3.5 py-1.5 rounded-xl border border-amber-400/30 flex items-center gap-2">
+                    <i class="fa-solid fa-gem text-amber-400 text-sm"></i>
+                    <span id="playerDonateHeader" class="text-sm font-extrabold text-amber-300 font-mono tracking-tight">-</span>
+                </div>
+
+                <!-- Money Header Badge -->
+                <div class="liquid-glass-sub px-3.5 py-1.5 rounded-xl border border-emerald-400/30 flex items-center gap-2">
+                    <i class="fa-solid fa-sack-dollar text-emerald-400 text-sm"></i>
+                    <span id="playerMoneyHeader" class="text-sm font-extrabold text-emerald-300 font-mono tracking-tight">-</span>
+                </div>
+
+                <!-- Close Button shifted right -->
+                <button onclick="closeMenu()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-rose-500/80 text-slate-300 hover:text-white flex items-center justify-center transition active:scale-95 ml-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex overflow-hidden p-4 gap-4">
+            
+            <!-- Sidebar Navigation -->
+            <aside class="w-64 liquid-glass-sub rounded-2xl p-3.5 flex flex-col gap-3 shrink-0">
+                
+                <!-- Player Card -->
+                <div class="liquid-glass p-3 rounded-xl border border-white/10 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Игрок</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></span>
+                    </div>
+                    <div class="font-extrabold text-sm text-white truncate" id="playerNickDisplay">-</div>
+                    <div id="playerJobDisplay" class="text-xs font-semibold text-cyan-400 truncate">-</div>
+                    <div class="text-[10px] text-slate-400 border-t border-white/10 mt-1.5 pt-1.5 flex justify-between font-mono">
+                        <span>Баланс:</span>
+                        <span id="playerMoneySidebar" class="text-emerald-400 font-bold">-</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="flex-1 flex flex-col gap-2">
+                    <button id="navBtn-jobs" onclick="switchTab('jobs', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition theme-active-tab border">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-group text-cyan-400"></i>
+                            <span>ПРОФЕССИИ</span>
+                        </span>
+                        <span id="jobCountBadge" class="text-[10px] bg-white/10 text-white px-1.5 py-0.5 rounded font-mono">0</span>
+                    </button>
+
+                    <button id="navBtn-shop" onclick="switchTab('shop', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white hover:bg-white/10">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+                            <span>МАГАЗИН</span>
+                        </span>
+                        <span class="text-[10px] bg-emerald-400/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">0</span>
+                    </button>
+
+                    <button id="navBtn-donate" onclick="switchTab('donate', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white hover:bg-white/10">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-gem text-amber-400"></i>
+                            <span>ДОНАТ</span>
+                        </span>
+                        <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">0</span>
+                    </button>
+
+                    <button id="navBtn-settings" onclick="switchTab('settings', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white hover:bg-white/10">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-sliders text-purple-400"></i>
+                            <span>НАСТРОЙКИ</span>
+                        </span>
+                    </button>
+                </nav>
+
+                <!-- Rules Button -->
+                <button onclick="openRules()" class="w-full px-3.5 py-2.5 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white hover:bg-white/10 border border-white/10 active:scale-95 shrink-0">
+                    <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-book text-rose-400"></i>
+                        <span>ПРАВИЛА СЕРВЕРА</span>
+                    </span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                </button>
+
+                <!-- Footer Server Info -->
+                <div class="p-2.5 rounded-xl bg-slate-950/60 border border-white/10 text-[10px] text-slate-400 flex justify-between font-mono">
+                    <span>ИГРОКИ: <span id="footerPlayers">0</span></span>
+                    <span class="text-emerald-400">ONLINE</span>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <section class="flex-1 flex flex-col gap-3 overflow-hidden">
+                
+                <!-- TAB 1: JOBS -->
+                <div id="tab-jobs" class="tab-content flex-1 flex flex-col gap-3 overflow-hidden">
+                    <div class="flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-[calc(100%-14rem)] whitespace-nowrap">
+                            <button onclick="filterJobs('civilian', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-400 text-slate-950 shrink-0">Гражданские</button>
+                            <button onclick="filterJobs('traders', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Торговцы</button>
+                            <button onclick="filterJobs('police', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Гос. служба</button>
+                            <button onclick="filterJobs('criminal', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Криминал</button>
+                            <button onclick="filterJobs('donate', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Донат</button>
+                            <button onclick="filterJobs('admin', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Админ</button>
+                        </div>
+
+                        <div class="relative w-52 shrink-0">
+                            <input type="text" id="jobSearch" onkeyup="searchJobs()" placeholder="Поиск профессии..." class="w-full bg-slate-950/60 border border-cyan-500/30 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-cyan-400/60"></i>
+                        </div>
+                    </div>
+
+                    <div id="jobsGrid" class="flex-1 overflow-y-auto pr-1 grid grid-cols-2 gap-3 content-start"></div>
+                </div>
+
+                <!-- TAB 2: SHOP -->
+                <div id="tab-shop" class="tab-content flex-1 flex-col gap-3 overflow-hidden hidden">
+                    <div class="flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none whitespace-nowrap max-w-[calc(100%-14rem)]">
+                            <button onclick="filterShop('printers', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-emerald-400 text-slate-950 shrink-0">Принтеры</button>
+                            <button onclick="filterShop('misc', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Прочее</button>
+                            <button onclick="filterShop('cocaine', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Кокаин</button>
+                            <button onclick="filterShop('weapons', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Оружие</button>
+                            <button onclick="filterShop('food', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Еда</button>
+                        </div>
+
+                        <div class="relative w-52 shrink-0">
+                            <input type="text" id="shopSearch" onkeyup="searchShop()" placeholder="Поиск товара..." class="w-full bg-slate-950/60 border border-emerald-500/30 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-emerald-400/60"></i>
+                        </div>
+                    </div>
+
+                    <div id="shopGrid" class="flex-1 overflow-y-auto pr-1 grid grid-cols-2 gap-3 content-start"></div>
+                </div>
+
+                <!-- TAB 3: DONATE -->
+                <div id="tab-donate" class="tab-content flex-1 flex-col gap-3 overflow-hidden hidden">
+                    <div class="flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none whitespace-nowrap">
+                            <button onclick="filterDonate('privileges', this)" class="donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-amber-400 text-slate-950 shrink-0">Привилегии</button>
+                            <button onclick="filterDonate('money', this)" class="donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Валюта</button>
+                            <button onclick="filterDonate('weapons', this)" class="donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0">Донат Оружие</button>
+                        </div>
+                    </div>
+
+                    <div id="donateGrid" class="flex-1 overflow-y-auto pr-1 grid grid-cols-1 gap-3 content-start"></div>
+                </div>
+
+                <!-- TAB 4: SETTINGS -->
+                <div id="tab-settings" class="tab-content flex-1 flex-col gap-4 overflow-y-auto hidden pr-1">
+                    <div class="liquid-glass p-4 rounded-2xl flex flex-col gap-4 border border-white/10">
+                        <h3 class="font-extrabold text-sm text-purple-300 tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> КЛИЕНТСКИЕ НАСТРОЙКИ ИНТЕРФЕЙСА
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200">Звуковые эффекты интерфейса (UI Sound)</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200">Размытие фона (Backdrop Blur)</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200">Анимация глянца (Liquid Shine)</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200">Закрывать F4 при выборе работы</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200">Показывать подсказки и лимиты</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200">Компактный режим списков</span>
+                                <input type="checkbox" class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // ПРОФЕССИИ (33)
+        const JOBS_DATA = [
+            { id: 'citizen', name: '1. Гражданин', category: 'civilian', slots: '∞', count: 14, salary: '250 ₽', desc: 'Обычный житель города', icon: 'fa-user', color: 'text-cyan-400', cmd: 'citizen' },
+            { id: 'hobo', name: '2. Бездомный', category: 'civilian', slots: '∞', count: 2, salary: '0 ₽', desc: 'Житель улиц без дома', icon: 'fa-box-open', color: 'text-amber-400', cmd: 'hobo' },
+            { id: 'advocate', name: '3. Адвокат', category: 'civilian', slots: '2', count: 1, salary: '240 ₽', desc: 'Защищает права жителей в суде', icon: 'fa-scale-balanced', color: 'text-indigo-400', cmd: 'advocate' },
+            { id: 'businessman', name: '4. Бизнесмен', category: 'civilian', slots: '2', count: 0, salary: '600 ₽', desc: 'Владелец казино и автоматов', icon: 'fa-briefcase', color: 'text-emerald-400', cmd: 'businessman' },
+            { id: 'parkourist', name: '5. Паркурист', category: 'civilian', slots: '3', count: 2, salary: '200 ₽', desc: 'Мастер трюков и бега', icon: 'fa-person-running', color: 'text-rose-400', cmd: 'parkourist' },
+            { id: 'banker', name: '6. Банкир', category: 'civilian', slots: '2', count: 1, salary: '500 ₽', desc: 'Хранит денежные средства', icon: 'fa-piggy-bank', color: 'text-yellow-400', cmd: 'banker' },
+            { id: 'security', name: '7. Охранник', category: 'civilian', slots: '3', count: 3, salary: '450 ₽', desc: 'Частная охрана объектов', icon: 'fa-user-ninja', color: 'text-slate-300', cmd: 'security' },
+
+            { id: 'gundealer', name: '8. Продавец оружия', category: 'traders', slots: '2', count: 2, salary: '450 ₽', desc: 'Продажа патронов и стволов', icon: 'fa-gun', color: 'text-amber-400', cmd: 'gundealer' },
+            { id: 'medic', name: '9. Медик', category: 'traders', slots: '3', count: 1, salary: '500 ₽', desc: 'Лечение и скорая помощь', icon: 'fa-user-doctor', color: 'text-rose-400', cmd: 'medic' },
+            { id: 'cook', name: '10. Повар', category: 'traders', slots: '6', count: 2, salary: '400 ₽', desc: 'Приготовление еды для жителей', icon: 'fa-utensils', color: 'text-emerald-400', cmd: 'cook' },
+
+            { id: 'police', name: '11. Полицейский', category: 'police', slots: '15', count: 6, salary: '550 ₽', desc: 'Охрана порядка в штате', icon: 'fa-user-shield', color: 'text-blue-400', cmd: 'police' },
+            { id: 'chief', name: '12. Шеф полиции', category: 'police', slots: '1', count: 1, salary: '800 ₽', desc: 'Командует полицией (Голос)', icon: 'fa-shield-halved', color: 'text-blue-500', cmd: 'chief', vote: true },
+            { id: 'mayor', name: '13. Мэр', category: 'police', slots: '1', count: 1, salary: '1000 ₽', desc: 'Глава города и законов (Голос)', icon: 'fa-crown', color: 'text-amber-400', cmd: 'mayor', vote: true },
+            { id: 'swat', name: '14. SWAT', category: 'police', slots: '3', count: 2, salary: '700 ₽', desc: 'Спецназ (Голос, 100 AP)', icon: 'fa-shield-cat', color: 'text-cyan-400', cmd: 'swat', vote: true },
+            { id: 'swatsniper', name: '15. SWAT Снайпер', category: 'police', slots: '2', count: 0, salary: '750 ₽', desc: 'Снайпер спецназа (100 AP)', icon: 'fa-crosshair', color: 'text-cyan-300', cmd: 'swatsniper', vote: true },
+            { id: 'swatmedic', name: '16. SWAT Медик', category: 'police', slots: '2', count: 1, salary: '750 ₽', desc: 'Полевой медик (100 AP)', icon: 'fa-kit-medical', color: 'text-rose-300', cmd: 'swatmedic', vote: true },
+            { id: 'swatleader', name: '17. Глава SWAT', category: 'police', slots: '1', count: 0, salary: '900 ₽', desc: 'Командир спецназа (125 AP)', icon: 'fa-star', color: 'text-indigo-400', cmd: 'swatleader', vote: true },
+
+            { id: 'thief', name: '18. Вор', category: 'criminal', slots: '4', count: 3, salary: '300 ₽', desc: 'Взлом замков и кражи', icon: 'fa-key', color: 'text-purple-400', cmd: 'thief' },
+            { id: 'gangster', name: '19. Гангстер', category: 'criminal', slots: '15', count: 7, salary: '350 ₽', desc: 'Уличная группировка', icon: 'fa-mask', color: 'text-rose-500', cmd: 'gangster' },
+            { id: 'mobboss', name: '20. Глава мафии', category: 'criminal', slots: '1', count: 1, salary: '600 ₽', desc: 'Босс криминала (Голос)', icon: 'fa-user-tie', color: 'text-red-500', cmd: 'mobboss', vote: true },
+            { id: 'hitman', name: '21. Наёмник', category: 'criminal', slots: '3', count: 2, salary: '350 ₽', desc: 'Выполнение заказов', icon: 'fa-skull', color: 'text-slate-400', cmd: 'hitman' },
+            { id: 'contrabandist', name: '22. Контрабандист', category: 'criminal', slots: '4', count: 1, salary: '45 ₽', desc: 'Торговля нелегалом', icon: 'fa-boxes-packing', color: 'text-amber-500', cmd: 'contrabandist' },
+            { id: 'methcook', name: '23. Варщик мета', category: 'criminal', slots: '2', count: 2, salary: '30 ₽', desc: 'Варит метамфетамин', icon: 'fa-flask', color: 'text-cyan-400', cmd: 'methcook' },
+            { id: 'cocainecook', name: '24. Варщик кокаина', category: 'criminal', slots: '2', count: 0, salary: '30 ₽', desc: 'Производство кокаина', icon: 'fa-leaf', color: 'text-emerald-400', cmd: 'cocainecook' },
+            { id: 'maniac', name: '25. Маньяк', category: 'criminal', slots: '2', count: 0, salary: '250 ₽', desc: 'Психопат, охотится на людей в одиночку', icon: 'fa-skull-crossbones', color: 'text-rose-500', cmd: 'maniac' },
+
+            { id: 'viphitman', name: '26. VIP Наёмник', category: 'donate', slots: '2', count: 1, salary: 'VIP/Premium', desc: 'Эксклюзивные заказы', icon: 'fa-gem', color: 'text-amber-300', cmd: 'viphitman' },
+            { id: 'premiumthief', name: '27. Premium Вор', category: 'donate', slots: '2', count: 0, salary: 'Premium', desc: 'Продвинутый взлом', icon: 'fa-gem', color: 'text-purple-300', cmd: 'premiumthief' },
+            { id: 'securityvip', name: '28. Проф. охранник VIP', category: 'donate', slots: '3', count: 2, salary: 'VIP', desc: 'Элитная охрана', icon: 'fa-shield', color: 'text-amber-400', cmd: 'securityvip' },
+            { id: 'juggernaut', name: '29. Джаггернаут', category: 'donate', slots: '1', count: 0, salary: 'Premium', desc: 'Тяжелый боец (250 AP)', icon: 'fa-robot', color: 'text-rose-400', cmd: 'juggernaut' },
+            { id: 'fbi', name: '30. ФБР', category: 'donate', slots: '5', count: 3, salary: 'Premium', desc: 'Агент ФБР (150 AP)', icon: 'fa-user-secret', color: 'text-blue-300', cmd: 'fbi', vote: true },
+
+            { id: 'administrator', name: '31. Администратор', category: 'admin', slots: '∞', count: 2, salary: 'Админ', desc: 'Контроль порядка', icon: 'fa-code', color: 'text-rose-400', cmd: 'administrator' },
+            { id: 'moderator', name: '32. Модератор', category: 'admin', slots: '∞', count: 1, salary: 'Модер', desc: 'Разбор жалоб', icon: 'fa-wrench', color: 'text-yellow-400', cmd: 'moderator' },
+            { id: 'creator', name: '33. Создатель', category: 'admin', slots: '1', count: 1, salary: 'Владелец', desc: 'Владелец сервера', icon: 'fa-crown', color: 'text-amber-300', cmd: 'creator' },
+            { id: 'banned', name: '34. Забаненный', category: 'admin', slots: '∞', count: 0, salary: 'Наказан', desc: 'Наказанный игрок', icon: 'fa-ban', color: 'text-red-600', cmd: 'banned', disabled: true }
+        ];
+
+        // МАГАЗИН
+        const SHOP_DATA = [
+            { name: '1. Денежный принтер', price: 1000, category: 'printers', max: 2, icon: 'fa-print' },
+            { name: '2. Банка для чаевых', price: 0, category: 'misc', max: 2, icon: 'fa-jar' },
+            { name: '3. Фотокамера', price: 1500, category: 'misc', max: 1, icon: 'fa-camera' },
+            { name: '4. Ящик пистолетов (5 шт.)', price: 8000, category: 'misc', max: 2, icon: 'fa-box' },
+            { name: '5. Ящик SMG (5 шт.)', price: 15000, category: 'misc', max: 2, icon: 'fa-box' },
+            { name: '6. Ящик дробовиков (5 шт.)', price: 18000, category: 'misc', max: 2, icon: 'fa-box' },
+            { name: '7. Игровой автомат', price: 18000, category: 'misc', max: 2, icon: 'fa-gamepad' },
+            { name: '8. Колёсный автомат', price: 22000, category: 'misc', max: 2, icon: 'fa-dharmachakra' },
+            { name: '9. Стол рулетки', price: 35000, category: 'misc', max: 2, icon: 'fa-table' },
+            { name: '10. Стол блэкджека', price: 35000, category: 'misc', max: 2, icon: 'fa-spade' },
+            { name: '11. Колесо удачи', price: 30000, category: 'misc', max: 2, icon: 'fa-circle-notch' },
+
+            { name: '13. Бутылка воды', price: 75, category: 'cocaine', max: 5, icon: 'fa-bottle-water' },
+            { name: '14. Газовая плита', price: 1500, category: 'cocaine', max: 2, icon: 'fa-fire' },
+            { name: '15. Кастрюля', price: 50, category: 'cocaine', max: 10, icon: 'fa-kitchen-set' },
+            { name: '16. Ведро', price: 75, category: 'cocaine', max: 10, icon: 'fa-bucket' },
+            { name: '17. Листья коки', price: 50, category: 'cocaine', max: 10, icon: 'fa-leaf' },
+            { name: '18. Аккумулятор', price: 150, category: 'cocaine', max: 10, icon: 'fa-car-battery' },
+            { name: '19. Газовый баллон', price: 350, category: 'cocaine', max: 8, icon: 'fa-database' },
+            { name: '20. Сушильная стойка', price: 1500, category: 'cocaine', max: 2, icon: 'fa-grip-lines' },
+            { name: '21. Ящик для кокаина', price: 100, category: 'cocaine', max: 4, icon: 'fa-box' },
+            { name: '22. Экстрактор кокаина', price: 1750, category: 'cocaine', max: 2, icon: 'fa-gear' },
+            { name: '23. Пищевая сода', price: 50, category: 'cocaine', max: 5, icon: 'fa-cubes' },
+
+            { name: '24. Desert Eagle', price: 215, category: 'weapons', icon: 'fa-gun' },
+            { name: '25. Fiveseven', price: 205, category: 'weapons', icon: 'fa-gun' },
+            { name: '26. Glock', price: 160, category: 'weapons', icon: 'fa-gun' },
+            { name: '27. P228', price: 185, category: 'weapons', icon: 'fa-gun' },
+            { name: '28. AK47 (Ящик)', price: 2450, category: 'weapons', icon: 'fa-boxes-stacked' },
+            { name: '29. MP5 (Ящик)', price: 2200, category: 'weapons', icon: 'fa-boxes-stacked' },
+            { name: '30. M4 (Ящик)', price: 2450, category: 'weapons', icon: 'fa-boxes-stacked' },
+            { name: '31. Mac 10 (Ящик)', price: 2150, category: 'weapons', icon: 'fa-boxes-stacked' },
+            { name: '32. Pump shotgun (Ящик)', price: 1750, category: 'weapons', icon: 'fa-boxes-stacked' },
+            { name: '33. Sniper rifle (Ящик)', price: 3750, category: 'weapons', icon: 'fa-boxes-stacked' },
+
+            { name: '34. Апельсин', price: 120, category: 'food', icon: 'fa-apple-whole' },
+            { name: '35. Банан', price: 140, category: 'food', icon: 'fa-lemon' },
+            { name: '36. Арбуз', price: 260, category: 'food', icon: 'fa-bowl-food' },
+            { name: '37. Бургер', price: 380, category: 'food', icon: 'fa-burger' },
+            { name: '38. Хот-дог', price: 320, category: 'food', icon: 'fa-hotdog' },
+            { name: '39. Пицца', price: 480, category: 'food', icon: 'fa-pizza-slice' },
+            { name: '40. Газировка', price: 100, category: 'food', icon: 'fa-bottle-droplet' },
+            { name: '41. Молоко', price: 190, category: 'food', icon: 'fa-glass-water' }
+        ];
+
+        // ДОНАТ
+        const DONATE_DATA = [
+            { id: 'vip_3d', name: 'VIP Status (3 дня)', category: 'privileges', price: '99 ₽', icon: 'fa-crown', color: 'text-amber-400', badge: 'VIP', desc: 'Начальный донат-статус с доступом к VIP профессиям.' },
+            { id: 'vip_7d', name: 'VIP Status (7 дней)', category: 'privileges', price: '199 ₽', icon: 'fa-crown', color: 'text-amber-400', badge: 'VIP', desc: 'Недельная VIP-подписка с бонусами к заработку.' },
+            { id: 'vip_30d', name: 'VIP Status (30 дней)', category: 'privileges', price: '499 ₽', icon: 'fa-crown', color: 'text-amber-400', badge: 'VIP', desc: 'Месячный VIP статус. Полный пакет начальных привилегий.' },
+            { id: 'prem_3d', name: 'PREMIUM Status (3 дня)', category: 'privileges', price: '199 ₽', icon: 'fa-gem', color: 'text-purple-400', badge: 'PREMIUM', desc: 'Продвинутый статус для активных игроков.' },
+            { id: 'prem_7d', name: 'PREMIUM Status (7 дней)', category: 'privileges', price: '399 ₽', icon: 'fa-gem', color: 'text-purple-400', badge: 'PREMIUM', desc: 'Неделя максимального комфорта и эксклюзивного оружия.' },
+            { id: 'prem_30d', name: 'PREMIUM Status (30 дней)', category: 'privileges', price: '899 ₽', icon: 'fa-gem', color: 'text-purple-400', badge: 'PREMIUM', desc: 'Максимальный статус на 30 дней. Все возможности сервера!' },
+
+            { id: 'money_50k', name: '50 000 ₽ На счёт', category: 'money', price: '50 ₽', icon: 'fa-sack-dollar', color: 'text-emerald-400', badge: 'ВАЛЮТА', desc: 'Мгновенное пополнение игрового баланса.' },
+            { id: 'money_150k', name: '150 000 ₽ На счёт', category: 'money', price: '120 ₽', icon: 'fa-sack-dollar', color: 'text-emerald-400', badge: 'ВАЛЮТА', desc: 'Выгодный пакет игровой валюты с экономией 20%.' },
+            { id: 'money_500k', name: '500 000 ₽ На счёт', category: 'money', price: '350 ₽', icon: 'fa-sack-dollar', color: 'text-emerald-400', badge: 'ВАЛЮТА', desc: 'Огромный капитал для старта собственного бизнеса.' },
+
+            { id: 'wep_m82', name: 'BARRETT M82', category: 'weapons', price: 'Эксклюзив', icon: 'fa-crosshair', color: 'text-rose-400', badge: 'СНАЙПЕРСКАЯ', desc: 'Тяжелая крупнокалиберная снайперская винтовка. Уничтожает цель с 1 выстрела.' },
+            { id: 'wep_m98b', name: 'BARRETT M98B', category: 'weapons', price: 'Эксклюзив', icon: 'fa-crosshair', color: 'text-rose-400', badge: 'СНАЙПЕРСКАЯ', desc: 'Высокоточная донат-винтовка с глушителем и минимальной отдачей.' },
+            { id: 'wep_inter', name: 'INTERVENTION', category: 'weapons', price: '499 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', desc: 'Легендарная винтовка CheyTac M200 Intervention.' },
+            { id: 'wep_aw50', name: 'AW-50', category: 'weapons', price: '599 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', desc: 'Усиленная модификация AWP под калибр .50 BMG.' },
+            { id: 'wep_psg1', name: 'HK PSG-1', category: 'weapons', price: '349 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', desc: 'Полуавтоматическая снайперская винтовка с высокой скорострельностью.' },
+            { id: 'wep_svd', name: 'SVD ДРАГУНОВ', category: 'weapons', price: '299 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', desc: 'Классическая снайперская винтовка Драгунова со снайперским прицелом ПСО-1.' },
+
+            { id: 'wep_hk416', name: 'HK 416', category: 'weapons', price: '149 ₽', icon: 'fa-gun', color: 'text-cyan-400', badge: 'ШТУРМОВАЯ', desc: 'Немецкий автоматический карабин с высокой точностью на средней дистанции.' },
+            { id: 'wep_ak47d', name: 'AK-47 Gold Edition', category: 'weapons', price: '99 ₽', icon: 'fa-gun', color: 'text-cyan-400', badge: 'ШТУРМОВАЯ', desc: 'Позолоченный автомат Калашникова с повышенным уроном.' },
+
+            { id: 'wep_double', name: 'ДВОЙНОЕ РУЖЬЁ', category: 'weapons', price: 'Эксклюзив', icon: 'fa-burst', color: 'text-rose-400', badge: 'ДРОБОВИК', desc: 'Двуствольный обрез с дуплетом. Мгновенный урон в ближнем бою.' },
+            { id: 'wep_usas', name: 'USAS-12', category: 'weapons', price: '249 ₽', icon: 'fa-burst', color: 'text-cyan-400', badge: 'ДРОБОВИК', desc: 'Автоматический гладкоствольный дробовик с дисковым магазином на 20 патронов.' },
+            { id: 'wep_striker', name: 'STRIKER-12', category: 'weapons', price: '199 ₽', icon: 'fa-burst', color: 'text-cyan-400', badge: 'ДРОБОВИК', desc: 'Боевой револьверный дробовик для зачистки помещений.' },
+
+            { id: 'wep_m249', name: 'M249 SAW', category: 'weapons', price: '399 ₽', icon: 'fa-dragon', color: 'text-purple-400', badge: 'ПУЛЕМЁТ', desc: 'Ручной пулемёт с патронной лентой на 100 выстрелов для подавления противника.' },
+            { id: 'wep_m60', name: 'M60', category: 'weapons', price: '449 ₽', icon: 'fa-dragon', color: 'text-purple-400', badge: 'ПУЛЕМЁТ', desc: 'Тяжелый пулемёт 7.62mm. Пробивает стены и бронетехнику.' },
+            { id: 'wep_pkt', name: 'ПКТ', category: 'weapons', price: '549 ₽', icon: 'fa-dragon', color: 'text-purple-400', badge: 'ПУЛЕМЁТ', desc: 'Танковый пулемёт Калашникова, адаптированный под ручную стрельбу.' }
+        ];
+
+        let currentJobCategory = 'civilian';
+        let currentShopCategory = 'printers';
+        let currentDonateCategory = 'privileges';
+
+        function renderJobs(filter, query) {
+            const grid = document.getElementById('jobsGrid');
+            grid.innerHTML = '';
+            JOBS_DATA.forEach(job => {
+                if (filter && filter !== 'all' && job.category !== filter) return;
+                if (query && !job.name.toLowerCase().includes(query.toLowerCase())) return;
+                const isFull = job.slots !== '∞' && job.count !== undefined && job.count >= parseInt(job.slots);
+                const isDisabled = job.disabled === true;
+                const card = document.createElement('div');
+                card.className = isDisabled
+                    ? 'liquid-glass-sub p-3 rounded-2xl flex items-center justify-between border border-rose-900/40 opacity-40 grayscale gap-3 select-none pointer-events-none'
+                    : 'liquid-glass-sub p-3 rounded-2xl flex items-center justify-between border border-white/10 transition hover:border-cyan-400/50 gap-3';
+                const badgeStyle = isFull ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-cyan-400/20 text-cyan-300 border-cyan-400/30';
+                let action = '';
+                if (isDisabled) {
+                    action = '<button disabled class="px-3.5 py-2 bg-slate-900/90 border border-white/10 text-slate-500 font-black text-xs rounded-xl shrink-0 cursor-not-allowed">ВЫБРАТЬ</button>';
+                } else if (isFull) {
+                    action = '<button disabled class="px-3.5 py-2 bg-slate-900/90 border border-rose-500/30 text-rose-400 font-black text-xs rounded-xl shrink-0 cursor-not-allowed opacity-75">МЕСТ НЕТ</button>';
+                } else {
+                    action = '<button onclick="window.gmod.changeJob(\'' + job.cmd + '\')" class="px-3.5 py-2 bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl transition shadow-md shadow-cyan-500/20 active:scale-95 shrink-0">ВЫБРАТЬ</button>';
+                }
+                card.innerHTML =
+                    '<div class="flex items-center gap-3 overflow-hidden flex-1">' +
+                        '<div class="w-14 h-14 rounded-xl bg-slate-900/90 border border-white/20 flex items-center justify-center ' + (job.color || 'text-cyan-400') + ' text-xl shadow-inner shrink-0"><i class="fa-solid ' + job.icon + '"></i></div>' +
+                        '<div class="flex-1 overflow-hidden">' +
+                            '<div class="flex items-center gap-1.5 truncate">' +
+                                '<h4 class="font-extrabold text-xs text-white truncate">' + job.name + '</h4>' +
+                                '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full ' + badgeStyle + ' font-bold border shrink-0">' + (job.count || 0) + '/' + job.slots + '</span>' +
+                            '</div>' +
+                            '<p class="text-[11px] text-slate-300 truncate mt-0.5">' + (job.desc || '') + '</p>' +
+                            '<div class="text-xs font-extrabold text-emerald-400 font-mono mt-1"><i class="fa-solid fa-sack-dollar text-[10px]"></i> ' + (job.salary || '') + '</div>' +
+                        '</div>' +
+                    '</div>' + action;
+                grid.appendChild(card);
+            });
+            const badge = document.getElementById('jobCountBadge');
+            if (badge) badge.innerText = JOBS_DATA.length;
+        }
+
+        function applyRealJobs(map) {
+            if (!map) return;
+            JOBS_DATA.forEach(function(j) {
+                var r = map[j.cmd];
+                if (r) {
+                    if (typeof r.count === 'number') j.count = r.count;
+                    j.slots = (r.max && r.max > 0) ? String(r.max) : '∞';
+                }
+            });
+            renderJobs(currentJobCategory, document.getElementById('jobSearch').value);
+        }
+
+        function renderShop(filter, query) {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+            SHOP_DATA.forEach(item => {
+                if (filter && filter !== 'all' && item.category !== filter) return;
+                if (query && !item.name.toLowerCase().includes(query.toLowerCase())) return;
+                const card = document.createElement('div');
+                card.className = 'liquid-glass-sub p-3 rounded-2xl flex items-center justify-between border border-white/10 transition hover:border-emerald-400/50 gap-3';
+                const badgeText = item.max ? 'Мин: ' + item.max : (item.job || 'Предмет');
+                card.innerHTML =
+                    '<div class="flex items-center gap-3 overflow-hidden flex-1">' +
+                        '<div class="w-14 h-14 rounded-xl bg-slate-900/90 border border-white/20 flex items-center justify-center text-emerald-400 text-xl shadow-inner shrink-0"><i class="fa-solid ' + item.icon + '"></i></div>' +
+                        '<div class="flex-1 overflow-hidden">' +
+                            '<div class="flex items-center gap-1.5 truncate">' +
+                                '<h4 class="font-extrabold text-xs text-white truncate">' + item.name + '</h4>' +
+                                '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 font-bold border border-emerald-400/30 shrink-0">' + badgeText + '</span>' +
+                            '</div>' +
+                            '<p class="text-[11px] text-slate-300 truncate mt-0.5">' + (item.desc || (item.job ? 'Доступно: ' + item.job : 'Товар магазина')) + '</p>' +
+                            '<div class="text-xs font-extrabold text-emerald-400 font-mono mt-1">' + item.price + ' ₽</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<button onclick="window.gmod.buyEntity(\'' + item.name + '\')" class="px-3.5 py-2 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 text-slate-950 font-black text-xs rounded-xl transition shadow-md shadow-emerald-500/20 active:scale-95 shrink-0">КУПИТЬ</button>';
+                grid.appendChild(card);
+            });
+        }
+
+        function renderDonate(filter) {
+            const grid = document.getElementById('donateGrid');
+            grid.innerHTML = '';
+            DONATE_DATA.forEach(item => {
+                if (filter && filter !== 'all' && item.category !== filter) return;
+                const card = document.createElement('div');
+                card.className = 'liquid-glass-sub p-4 rounded-2xl flex items-center justify-between border border-white/10 transition hover:border-amber-400/50 gap-4';
+                card.innerHTML =
+                    '<div class="flex items-center gap-4 overflow-hidden flex-1">' +
+                        '<div class="w-20 h-20 rounded-2xl bg-slate-900/90 border border-white/20 flex flex-col items-center justify-center relative shadow-inner shrink-0 overflow-hidden">' +
+                            '<i class="fa-solid ' + item.icon + ' ' + (item.color || 'text-amber-400') + ' text-3xl"></i>' +
+                            '<span class="absolute bottom-1.5 text-[9px] font-mono text-slate-300 font-bold uppercase tracking-wider bg-black/60 px-2 py-0.5 rounded-full border border-white/10">' + (item.badge || 'ITEM') + '</span>' +
+                        '</div>' +
+                        '<div class="flex-1 overflow-hidden">' +
+                            '<div class="flex items-center gap-2"><h4 class="font-extrabold text-sm text-white truncate">' + item.name + '</h4><span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30">' + item.price + '</span></div>' +
+                            '<p class="text-xs text-slate-300 mt-1 leading-relaxed">' + (item.desc || '') + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<button onclick="window.gmod.buyDonateItem(\'' + item.id + '\', \'' + item.name + '\', \'' + item.price + '\')" class="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl transition shadow-lg shadow-amber-500/25 active:scale-95 shrink-0"><i class="fa-solid fa-cart-shopping"></i> КУПИТЬ</button>';
+                grid.appendChild(card);
+            });
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => { t.classList.add('hidden'); t.classList.remove('flex'); });
+            document.querySelectorAll('.nav-tab-btn').forEach(b => { b.className = 'nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white hover:bg-white/10'; });
+            const tab = document.getElementById('tab-' + tabId);
+            if (tab) { tab.classList.remove('hidden'); tab.classList.add('flex'); }
+            if (btn) btn.className = 'nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition theme-active-tab border';
+        }
+
+        function filterJobs(cat, btn) {
+            currentJobCategory = cat;
+            document.querySelectorAll('.job-filter-btn').forEach(b => { b.className = 'job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0'; });
+            if (btn) btn.className = 'job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-400 text-slate-950 shrink-0';
+            renderJobs(cat, document.getElementById('jobSearch').value);
+        }
+        function searchJobs() { renderJobs(currentJobCategory, document.getElementById('jobSearch').value); }
+
+        function filterShop(cat, btn) {
+            currentShopCategory = cat;
+            document.querySelectorAll('.shop-filter-btn').forEach(b => { b.className = 'shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0'; });
+            if (btn) btn.className = 'shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-emerald-400 text-slate-950 shrink-0';
+            renderShop(cat, document.getElementById('shopSearch').value);
+        }
+        function searchShop() { renderShop(currentShopCategory, document.getElementById('shopSearch').value); }
+
+        function filterDonate(cat, btn) {
+            currentDonateCategory = cat;
+            document.querySelectorAll('.donate-filter-btn').forEach(b => { b.className = 'donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-300 hover:text-white shrink-0'; });
+            if (btn) btn.className = 'donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-amber-400 text-slate-950 shrink-0';
+            renderDonate(cat);
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'liquid-glass px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-xl border border-cyan-400/40 flex items-center gap-2';
+            toast.innerHTML = '<i class="fa-solid fa-circle-info text-cyan-400"></i> <span>' + msg + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function closeMenu() { if (window.gmod && window.gmod.closeF4Menu) window.gmod.closeF4Menu(); }
+        function openRules() {
+            showToast('Правила сервера доступны в Discord / на вкладке при включении сайта правил.');
+        }
+
+        function initHorizontalMouseWheel() {
+            document.querySelectorAll('.overflow-x-auto').forEach(container => {
+                container.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) { e.preventDefault(); container.scrollLeft += e.deltaY * 0.8; }
+                }, { passive: false });
+            });
+        }
+
+        window.onload = function() {
+            renderJobs('civilian');
+            renderShop('printers');
+            renderDonate('privileges');
+            initHorizontalMouseWheel();
+        };
+    </script>
+</body>
+</html>

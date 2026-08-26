@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus City HUD</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;700;800&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{ pointer-events: none; user-select: none; }
+html,body{ margin:0; padding:0; width:100vw; height:100vh; overflow:hidden;
+  background:transparent; font-family:'Inter',sans-serif; }
+
+/* --- top-right NEXUS banner --- */
+#banner{ position:fixed; top:18px; right:18px; padding:12px 18px;
+  background:rgba(15,15,20,0.72); border:1px solid rgba(255,255,255,0.14);
+  border-radius:12px; backdrop-filter:blur(10px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.5); }
+#banner .bar{ position:absolute; left:12px; right:12px; top:7px; height:2px;
+  background:linear-gradient(90deg,#ff6570,#ffa06b); border-radius:2px; }
+#banner .txt{ font-weight:800; letter-spacing:2px; color:#faf9fc; font-size:13px; }
+
+/* --- bottom-left player capsule --- */
+#player{ position:fixed; left:22px; bottom:96px; display:flex; align-items:center;
+  padding:10px 18px; background:rgba(15,15,20,0.72);
+  border:1px solid rgba(255,255,255,0.14); border-radius:14px;
+  backdrop-filter:blur(10px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.5); }
+#player .dot{ width:8px; height:8px; border-radius:50%; background:#70e09c;
+  box-shadow:0 0 8px #70e09c; margin-right:12px; }
+#player .col{ display:flex; flex-direction:column; }
+#player #hudNick{ font-weight:800; color:#faf9fc; font-size:15px; line-height:1.2; }
+#player #hudJob{ font-weight:600; color:#ff6570; font-size:12px; line-height:1.2; }
+
+/* --- bottom metrics row --- */
+#metrics{ position:fixed; left:22px; bottom:22px; display:flex; gap:8px; }
+.metric{ width:92px; padding:10px 12px; background:rgba(15,15,20,0.72);
+  border:1px solid rgba(255,255,255,0.14); border-radius:12px;
+  backdrop-filter:blur(10px) saturate(160%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.5);
+  text-align:center; }
+.metric .top{ display:flex; justify-content:space-between; align-items:center;
+  font-family:'Fira Code',monospace; font-size:16px; font-weight:700; color:#faf9fc; }
+.metric .lbl{ font-size:9px; letter-spacing:1px; color:rgba(255,255,255,0.6);
+  text-transform:uppercase; margin-bottom:3px; }
+.metric .flag{ font-size:11px; }
+.metric .track{ margin-top:6px; height:4px; border-radius:4px;
+  background:rgba(255,255,255,0.10); overflow:hidden; }
+.metric .fill{ height:100%; border-radius:4px; width:100%; transition:width .2s linear; }
+
+/* --- bottom-right ammo --- */
+#ammo{ position:fixed; right:22px; bottom:22px; display:flex; align-items:center; gap:2px;
+  font-family:'Fira Code',monospace; font-weight:700; color:#faf9fc;
+  text-shadow:0 2px 8px rgba(0,0,0,0.7); }
+#ammo #ammoClip{ font-size:30px; }
+#ammo #ammoReserve{ font-size:15px; color:rgba(255,255,255,0.6); margin-top:12px; }
+</style>
+</head>
+<body>
+
+<div id="banner"><div class="bar"></div><div class="txt">NEXUS CITY</div></div>
+
+<div id="player">
+  <div class="dot"></div>
+  <div class="col">
+    <span id="hudNick">-</span>
+    <span id="hudJob">-</span>
+  </div>
+</div>
+
+<div id="metrics">
+  <div class="metric" id="m-hp">
+    <div class="lbl">Здоровье</div>
+    <div class="top"><span class="flag" style="color:#ff6570">&#9829;</span><span id="hudHp">100</span></div>
+    <div class="track"><div class="fill" id="hpBar" style="background:#ff6570"></div></div>
+  </div>
+  <div class="metric" id="m-armor">
+    <div class="lbl">Броня</div>
+    <div class="top"><span class="flag" style="color:#53daee">&#9670;</span><span id="hudArmor">0</span></div>
+    <div class="track"><div class="fill" id="armorBar" style="background:#53daee"></div></div>
+  </div>
+  <div class="metric" id="m-hunger">
+    <div class="lbl">Сытость</div>
+    <div class="top"><span class="flag" style="color:#ffcd5b">&#9679;</span><span id="hudHunger">100</span></div>
+    <div class="track"><div class="fill" id="hungerBar" style="background:#ffcd5b"></div></div>
+  </div>
+  <div class="metric" id="m-money">
+    <div class="lbl">Деньги</div>
+    <div class="top"><span class="flag" style="color:#70e09c">&#9632;</span><span id="hudMoney" style="font-size:13px">0</span></div>
+    <div class="track"><div class="fill" id="moneyBar" style="background:#70e09c; width:100%"></div></div>
+  </div>
+</div>
+
+<div id="ammo"><span id="ammoClip">0</span><span id="ammoReserve">/ 0</span></div>
+
+<script>
+function setVal(id, txt){ var e=document.getElementById(id); if(e) e.textContent = txt; }
+function setBar(id, pct){ var e=document.getElementById(id); if(e) e.style.width = Math.max(0,Math.min(100,pct)) + '%'; }
+
+function updateStats(key, val){
+  val = Math.floor(Number(val) || 0);
+  if(key==='hp'){ setVal('hudHp', val); setBar('hpBar', val); }
+  else if(key==='armor'){ setVal('hudArmor', val); setBar('armorBar', val); }
+  else if(key==='hunger'){ setVal('hudHunger', val); setBar('hungerBar', val); }
+  else if(key==='money'){ setVal('hudMoney', String(val)); }
+  else if(key==='ammo'){ setVal('ammoClip', Math.max(0,val)); }
+  else if(key==='reserve'){ setVal('ammoReserve', '/ ' + Math.max(0,val)); }
+  else if(key==='job'){ setVal('hudJob', String(val)); }
+  else if(key==='nick'){ setVal('hudNick', String(val)); }
+}
+</script>
+</body>
+</html>
