@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garry's Mod HTML F4 Menu - NEXUS CITY RP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent-color: #00f2fe;
+            --accent-secondary: #00c6ff;
+            --accent-glow: rgba(0, 242, 254, 0.35);
+            --accent-border: rgba(0, 242, 254, 0.55);
+            --accent-bg: rgba(0, 242, 254, 0.22);
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
+
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Liquid Glass Styling with High-Contrast Dark Slate Backdrop */
+        .liquid-glass {
+            background: linear-gradient(135deg, rgba(18, 24, 38, 0.95) 0%, rgba(10, 14, 23, 0.92) 100%) !important;
+            backdrop-filter: blur(28px) saturate(210%) !important;
+            -webkit-backdrop-filter: blur(28px) saturate(210%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            box-shadow: 
+                0 20px 50px 0 rgba(0, 0, 0, 0.85), 
+                inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
+                inset 0 -1px 2px 0 rgba(0, 0, 0, 0.6),
+                0 0 30px var(--accent-glow) !important;
+            overflow: hidden !important;
+        }
+
+        .liquid-glass-sub {
+            background: rgba(18, 25, 38, 0.88) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            border-radius: 1rem !important;
+            clip-path: inset(0 round 1rem) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .liquid-glass-sub:hover {
+            background: rgba(24, 33, 50, 0.95) !important;
+            border-color: rgba(0, 242, 254, 0.35) !important;
+        }
+
+        .liquid-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .liquid-shine::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-25deg);
+            animation: liquidGlare 6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes liquidGlare {
+            0% { left: -100%; }
+            30% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.25) 50%,
+                rgba(0, 0, 0, 0.25)
+            );
+            background-size: 100% 4px;
+        }
+
+        .theme-active-tab {
+            background: linear-gradient(90deg, var(--accent-bg), rgba(255, 255, 255, 0.08)) !important;
+            border-color: var(--accent-border) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px var(--accent-glow) !important;
+        }
+
+        /* Subtle drop-shadow for all UI text for maximum contrast on bright maps */
+        .text-shadow-sm {
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-slate-950/80 text-slate-100 font-sans h-screen flex items-center justify-center overflow-hidden select-none relative" style="background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920&auto=format&fit=crop'); background-size: cover; background-position: center;">
+
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md"></div>
+    <div class="absolute inset-0 scanlines opacity-30 pointer-events-none"></div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+
+    <!-- Main F4 Window -->
+    <main id="mainFrame" class="relative w-[1140px] h-[720px] max-w-[96vw] max-h-[94vh] liquid-glass rounded-3xl flex flex-col overflow-hidden z-10 shadow-2xl transition-all duration-300">
+        
+        <!-- Header Bar -->
+        <header id="mainHeader" class="h-16 bg-slate-950/90 border-b border-white/15 px-5 flex items-center justify-between shrink-0 relative liquid-shine transition-all duration-300">
+            <div id="headerBanner" class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-cyan-500/30">
+                    N
+                </div>
+                <div>
+                    <h1 class="font-black text-xl text-white tracking-wider flex items-center gap-2 text-shadow-sm">
+                        NEXUS CITY RP
+                    </h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Donate Currency Header Badge -->
+                <div class="liquid-glass-sub px-3.5 py-1.5 rounded-xl border border-amber-400/30 flex items-center gap-2">
+                    <i class="fa-solid fa-gem text-amber-400 text-sm"></i>
+                    <span id="playerDonateHeader" class="text-sm font-extrabold text-amber-300 font-mono tracking-tight text-shadow-sm">250 ₽</span>
+                </div>
+
+                <!-- Money Header Badge -->
+                <div class="liquid-glass-sub px-3.5 py-1.5 rounded-xl border border-emerald-400/30 flex items-center gap-2">
+                    <i class="fa-solid fa-sack-dollar text-emerald-400 text-sm"></i>
+                    <span id="playerMoneyHeader" class="text-sm font-extrabold text-emerald-300 font-mono tracking-tight text-shadow-sm">1 450 000 ₽</span>
+                </div>
+
+                <!-- Close Button shifted right -->
+                <button onclick="closeMenu()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-rose-500/80 text-slate-300 hover:text-white flex items-center justify-center transition active:scale-95 ml-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex overflow-hidden p-4 gap-4">
+            
+            <!-- Sidebar Navigation -->
+            <aside class="w-64 liquid-glass-sub rounded-2xl p-3.5 flex flex-col gap-3 shrink-0">
+                
+                <!-- Player Card -->
+                <div class="liquid-glass p-3 rounded-xl border border-white/10 flex flex-col gap-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-slate-300 font-bold uppercase tracking-wider">Игрок</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></span>
+                    </div>
+                    <div class="font-extrabold text-sm text-white truncate text-shadow-sm" id="playerNickDisplay">Alex Mercer</div>
+                    <div id="playerJobDisplay" class="text-xs font-semibold text-cyan-400 truncate text-shadow-sm">Охрана Мэра</div>
+                    <div class="text-[10px] text-slate-300 border-t border-white/10 mt-1.5 pt-1.5 flex justify-between font-mono">
+                        <span>Баланс:</span>
+                        <span id="playerMoneySidebar" class="text-emerald-400 font-bold">1 450 000 ₽</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="flex-1 flex flex-col gap-2">
+                    <button id="navBtn-jobs" onclick="switchTab('jobs', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition theme-active-tab border">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-group text-cyan-400"></i>
+                            <span class="text-shadow-sm">ПРОФЕССИИ</span>
+                        </span>
+                        <span class="text-[10px] bg-white/15 text-white px-1.5 py-0.5 rounded font-mono">33</span>
+                    </button>
+
+                    <button id="navBtn-shop" onclick="switchTab('shop', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white hover:bg-white/10">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+                            <span class="text-shadow-sm">МАГАЗИН</span>
+                        </span>
+                        <span class="text-[10px] bg-emerald-400/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">41</span>
+                    </button>
+
+                    <button id="navBtn-donate" onclick="switchTab('donate', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white hover:bg-white/10">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-gem text-amber-400"></i>
+                            <span class="text-shadow-sm">ДОНАТ</span>
+                        </span>
+                        <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-mono">23</span>
+                    </button>
+
+                    <button id="navBtn-settings" onclick="switchTab('settings', this)" class="nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white hover:bg-white/10">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-sliders text-purple-400"></i>
+                            <span class="text-shadow-sm">НАСТРОЙКИ</span>
+                        </span>
+                    </button>
+                </nav>
+
+                <!-- Rules Button -->
+                <button onclick="openRules()" class="w-full px-3.5 py-2.5 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white hover:bg-white/10 border border-white/10 active:scale-95 shrink-0">
+                    <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-book text-rose-400"></i>
+                        <span class="text-shadow-sm">ПРАВИЛА СЕРВЕРА</span>
+                    </span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                </button>
+
+                <!-- Footer Server Info -->
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-[10px] text-slate-300 flex justify-between font-mono">
+                    <span>ИГРОКИ: 54/64</span>
+                    <span class="text-emerald-400">PING: 14 ms</span>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <section class="flex-1 flex flex-col gap-3 overflow-hidden">
+                
+                <!-- TAB 1: JOBS (33 JOBS) -->
+                <div id="tab-jobs" class="tab-content flex-1 flex flex-col gap-3 overflow-hidden">
+                    <div class="flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-[calc(100%-14rem)] whitespace-nowrap">
+                            <button onclick="filterJobs('civilian', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-400 text-slate-950 shrink-0">Гражданские (7)</button>
+                            <button onclick="filterJobs('traders', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Торговцы (3)</button>
+                            <button onclick="filterJobs('police', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Полиция (7)</button>
+                            <button onclick="filterJobs('criminal', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Криминал (7)</button>
+                            <button onclick="filterJobs('donate', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Донат (5)</button>
+                            <button onclick="filterJobs('admin', this)" class="job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Админ (4)</button>
+                        </div>
+
+                        <div class="relative w-52 shrink-0">
+                            <input type="text" id="jobSearch" onkeyup="searchJobs()" placeholder="Поиск профессии..." class="w-full bg-slate-950/80 border border-cyan-500/30 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-cyan-400/60"></i>
+                        </div>
+                    </div>
+
+                    <div id="jobsGrid" class="flex-1 overflow-y-auto pr-1 grid grid-cols-2 gap-3 content-start"></div>
+                </div>
+
+                <!-- TAB 2: SHOP (41 ITEMS) -->
+                <div id="tab-shop" class="tab-content flex-1 flex-col gap-3 overflow-hidden hidden">
+                    <div class="flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none whitespace-nowrap max-w-[calc(100%-14rem)]">
+                            <button onclick="filterShop('printers', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-emerald-400 text-slate-950 shrink-0">Принтеры (1)</button>
+                            <button onclick="filterShop('misc', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Прочее (11)</button>
+                            <button onclick="filterShop('cocaine', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Кокаин (11)</button>
+                            <button onclick="filterShop('weapons', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Оружие (10)</button>
+                            <button onclick="filterShop('food', this)" class="shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Еда (8)</button>
+                        </div>
+
+                        <div class="relative w-52 shrink-0">
+                            <input type="text" id="shopSearch" onkeyup="searchShop()" placeholder="Поиск товара..." class="w-full bg-slate-950/80 border border-emerald-500/30 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-emerald-400/60"></i>
+                        </div>
+                    </div>
+
+                    <div id="shopGrid" class="flex-1 overflow-y-auto pr-1 grid grid-cols-2 gap-3 content-start"></div>
+                </div>
+
+                <!-- TAB 3: DONATE (23 ITEMS) -->
+                <div id="tab-donate" class="tab-content flex-1 flex-col gap-3 overflow-hidden hidden">
+                    <div class="flex items-center justify-between gap-3 shrink-0">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none whitespace-nowrap">
+                            <button onclick="filterDonate('privileges', this)" class="donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-amber-400 text-slate-950 shrink-0">Привилегии (6)</button>
+                            <button onclick="filterDonate('money', this)" class="donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Валюта (3)</button>
+                            <button onclick="filterDonate('weapons', this)" class="donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Донат Оружие (14)</button>
+                        </div>
+                    </div>
+
+                    <div id="donateGrid" class="flex-1 overflow-y-auto pr-1 grid grid-cols-1 gap-3 content-start"></div>
+                </div>
+
+                <!-- TAB 4: SETTINGS -->
+                <div id="tab-settings" class="tab-content flex-1 flex-col gap-4 overflow-y-auto hidden pr-1">
+                    <div class="liquid-glass p-4 rounded-2xl flex flex-col gap-4 border border-white/10">
+                        <h3 class="font-extrabold text-sm text-purple-300 tracking-wider flex items-center gap-2 text-shadow-sm">
+                            <i class="fa-solid fa-sliders"></i> КЛИЕНТСКИЕ НАСТРОЙКИ ИНТЕРФЕЙСА
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200 text-shadow-sm">Звуковые эффекты интерфейса (UI Sound)</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200 text-shadow-sm">Размытие фона (Backdrop Blur)</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200 text-shadow-sm">Анимация глянца (Liquid Shine)</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200 text-shadow-sm">Закрывать F4 при выборе работы</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200 text-shadow-sm">Показывать подсказки и лимиты</span>
+                                <input type="checkbox" checked class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+
+                            <label class="liquid-glass-sub p-3 rounded-xl flex items-center justify-between cursor-pointer border border-white/10">
+                                <span class="text-xs font-semibold text-slate-200 text-shadow-sm">Компактный режим списков</span>
+                                <input type="checkbox" class="w-4 h-4 accent-purple-500 rounded cursor-pointer">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        let currentMoney = 1450000;
+        let currentJobCategory = 'civilian';
+        let currentShopCategory = 'printers';
+        let currentDonateCategory = 'privileges';
+
+        // 33 JOBS DATA
+        const JOBS_DATA = [
+            { id: 'citizen', name: '1. Гражданин', category: 'civilian', slots: '∞', count: 14, salary: '250 ₽', desc: 'Обычный житель города', icon: 'fa-user', color: 'text-cyan-400', cmd: 'citizen' },
+            { id: 'hobo', name: '2. Бездомный', category: 'civilian', slots: '∞', count: 2, salary: '0 ₽', desc: 'Житель улиц без дома', icon: 'fa-box-open', color: 'text-amber-400', cmd: 'hobo' },
+            { id: 'advocate', name: '3. Адвокат', category: 'civilian', slots: '2', count: 1, salary: '240 ₽', desc: 'Защищает права жителей в суде', icon: 'fa-scale-balanced', color: 'text-indigo-400', cmd: 'advocate' },
+            { id: 'businessman', name: '4. Бизнесмен', category: 'civilian', slots: '2', count: 0, salary: '600 ₽', desc: 'Владелец казино и автоматов', icon: 'fa-briefcase', color: 'text-emerald-400', cmd: 'businessman' },
+            { id: 'parkourist', name: '5. Паркурист', category: 'civilian', slots: '3', count: 2, salary: '200 ₽', desc: 'Мастер трюков и бега', icon: 'fa-person-running', color: 'text-rose-400', cmd: 'parkourist' },
+            { id: 'banker', name: '6. Банкир', category: 'civilian', slots: '2', count: 1, salary: '500 ₽', desc: 'Хранит денежные средства', icon: 'fa-piggy-bank', color: 'text-yellow-400', cmd: 'banker' },
+            { id: 'security', name: '7. Охранник', category: 'civilian', slots: '3', count: 3, salary: '450 ₽', desc: 'Частная охрана объектов', icon: 'fa-user-ninja', color: 'text-slate-300', cmd: 'security' },
+
+            { id: 'gundealer', name: '8. Продавец оружия', category: 'traders', slots: '2', count: 2, salary: '450 ₽', desc: 'Продажа патронов и стволов', icon: 'fa-gun', color: 'text-amber-400', cmd: 'gundealer' },
+            { id: 'medic', name: '9. Медик', category: 'traders', slots: '3', count: 1, salary: '500 ₽', desc: 'Лечение и скорая помощь', icon: 'fa-user-doctor', color: 'text-rose-400', cmd: 'medic' },
+            { id: 'cook', name: '10. Повар', category: 'traders', slots: '6', count: 2, salary: '400 ₽', desc: 'Приготовление еды для жителей', icon: 'fa-utensils', color: 'text-emerald-400', cmd: 'cook' },
+
+            { id: 'police', name: '11. Полицейский', category: 'police', slots: '15', count: 6, salary: '550 ₽', desc: 'Охрана порядка в штате', icon: 'fa-user-shield', color: 'text-blue-400', cmd: 'police' },
+            { id: 'chief', name: '12. Шеф полиции', category: 'police', slots: '1', count: 1, salary: '800 ₽', desc: 'Командует полицией (Голос)', icon: 'fa-shield-halved', color: 'text-blue-500', cmd: 'chief', vote: true },
+            { id: 'mayor', name: '13. Мэр', category: 'police', slots: '1', count: 1, salary: '1000 ₽', desc: 'Глава города и законов (Голос)', icon: 'fa-crown', color: 'text-amber-400', cmd: 'mayor', vote: true },
+            { id: 'swat', name: '14. SWAT', category: 'police', slots: '3', count: 2, salary: '700 ₽', desc: 'Спецназ (Голос, 100 AP)', icon: 'fa-shield-cat', color: 'text-cyan-400', cmd: 'swat', vote: true },
+            { id: 'swatsniper', name: '15. SWAT Снайпер', category: 'police', slots: '2', count: 0, salary: '750 ₽', desc: 'Снайпер спецназа (100 AP)', icon: 'fa-crosshair', color: 'text-cyan-300', cmd: 'swatsniper', vote: true },
+            { id: 'swatmedic', name: '16. SWAT Медик', category: 'police', slots: '2', count: 1, salary: '750 ₽', desc: 'Полевой медик (100 AP)', icon: 'fa-kit-medical', color: 'text-rose-300', cmd: 'swatmedic', vote: true },
+            { id: 'swatleader', name: '17. Глава SWAT', category: 'police', slots: '1', count: 0, salary: '900 ₽', desc: 'Командир спецназа (125 AP)', icon: 'fa-star', color: 'text-indigo-400', cmd: 'swatleader', vote: true },
+
+            { id: 'thief', name: '18. Вор', category: 'criminal', slots: '4', count: 3, salary: '300 ₽', desc: 'Взлом замков и кражи', icon: 'fa-key', color: 'text-purple-400', cmd: 'thief' },
+            { id: 'gangster', name: '19. Гангстер', category: 'criminal', slots: '15', count: 7, salary: '350 ₽', desc: 'Уличная группировка', icon: 'fa-mask', color: 'text-rose-500', cmd: 'gangster' },
+            { id: 'mobboss', name: '20. Глава мафии', category: 'criminal', slots: '1', count: 1, salary: '600 ₽', desc: 'Босс криминала (Голос)', icon: 'fa-user-tie', color: 'text-red-500', cmd: 'mobboss', vote: true },
+            { id: 'hitman', name: '21. Наёмник', category: 'criminal', slots: '3', count: 2, salary: '350 ₽', desc: 'Выполнение заказов', icon: 'fa-skull', color: 'text-slate-400', cmd: 'hitman' },
+            { id: 'contrabandist', name: '22. Контрабандист', category: 'criminal', slots: '4', count: 1, salary: '45 ₽', desc: 'Торговля нелегалом', icon: 'fa-boxes-packing', color: 'text-amber-500', cmd: 'contrabandist' },
+            { id: 'methcook', name: '23. Варщик мета', category: 'criminal', slots: '2', count: 2, salary: '30 ₽', desc: 'Варит метамфетамин', icon: 'fa-flask', color: 'text-cyan-400', cmd: 'methcook' },
+            { id: 'cocainecook', name: '24. Варщик кокаина', category: 'criminal', slots: '2', count: 0, salary: '30 ₽', desc: 'Производство кокаина', icon: 'fa-leaf', color: 'text-emerald-400', cmd: 'cocainecook' },
+
+            { id: 'viphitman', name: '25. VIP Наёмник', category: 'donate', slots: '2', count: 1, salary: 'VIP/Premium', desc: 'Эксклюзивные заказы', icon: 'fa-gem', color: 'text-amber-300', cmd: 'viphitman' },
+            { id: 'premiumthief', name: '26. Premium Вор', category: 'donate', slots: '2', count: 0, salary: 'Premium', desc: 'Продвинутый взлом', icon: 'fa-gem', color: 'text-purple-300', cmd: 'premiumthief' },
+            { id: 'securityvip', name: '27. Проф. охранник VIP', category: 'donate', slots: '3', count: 2, salary: 'VIP', desc: 'Элитная охрана', icon: 'fa-shield', color: 'text-amber-400', cmd: 'securityvip' },
+            { id: 'juggernaut', name: '28. Джаггернаут', category: 'donate', slots: '1', count: 0, salary: 'Premium', desc: 'Тяжелый боец (250 AP)', icon: 'fa-robot', color: 'text-rose-400', cmd: 'juggernaut' },
+            { id: 'fbi', name: '29. ФБР', category: 'donate', slots: '5', count: 3, salary: 'Premium', desc: 'Агент ФБР (150 AP)', icon: 'fa-user-secret', color: 'text-blue-300', cmd: 'fbi', vote: true },
+
+            { id: 'administrator', name: '30. Администратор', category: 'admin', slots: '∞', count: 2, salary: 'Админ', desc: 'Контроль порядка', icon: 'fa-code', color: 'text-rose-400', cmd: 'administrator' },
+            { id: 'moderator', name: '31. Модератор', category: 'admin', slots: '∞', count: 1, salary: 'Модер', desc: 'Разбор жалоб', icon: 'fa-wrench', color: 'text-yellow-400', cmd: 'moderator' },
+            { id: 'creator', name: '32. Создатель', category: 'admin', slots: '1', count: 1, salary: 'Владелец', desc: 'Владелец сервера', icon: 'fa-crown', color: 'text-amber-300', cmd: 'creator' },
+            { id: 'banned', name: '33. Забаненный', category: 'admin', slots: '∞', count: 0, salary: 'Наказан', desc: 'Наказанный игрок', icon: 'fa-ban', color: 'text-red-600', cmd: 'banned', disabled: true }
+        ];
+
+        // 41 SHOP ITEMS DATA
+        const SHOP_DATA = [
+            { name: '1. Денежный принтер', price: 1000, category: 'printers', max: 2, icon: 'fa-print' },
+            { name: '2. Банка для чаевых', price: 0, category: 'misc', max: 2, icon: 'fa-jar' },
+            { name: '3. Фотокамера', price: 1500, category: 'misc', max: 1, icon: 'fa-camera' },
+            { name: '4. Ящик пистолетов (5 шт.)', price: 8000, category: 'misc', max: 2, job: 'Оружейник', icon: 'fa-box' },
+            { name: '5. Ящик SMG (5 шт.)', price: 15000, category: 'misc', max: 2, job: 'Оружейник', icon: 'fa-box' },
+            { name: '6. Ящик дробовиков (5 шт.)', price: 18000, category: 'misc', max: 2, job: 'Оружейник', icon: 'fa-box' },
+            { name: '7. Игровой автомат', price: 18000, category: 'misc', max: 2, job: 'Бизнесмен', icon: 'fa-gamepad' },
+            { name: '8. Колёсный автомат', price: 22000, category: 'misc', max: 2, job: 'Бизнесмен', icon: 'fa-dharmachakra' },
+            { name: '9. Стол рулетки', price: 35000, category: 'misc', max: 2, job: 'Бизнесмен', icon: 'fa-table' },
+            { name: '10. Стол блэкджека', price: 35000, category: 'misc', max: 2, job: 'Бизнесмен', icon: 'fa-spade' },
+            { name: '11. Колесо удачи', price: 30000, category: 'misc', max: 2, job: 'Бизнесмен', icon: 'fa-circle-notch' },
+
+            { name: '13. Бутылка воды', price: 75, category: 'cocaine', max: 5, job: 'Варщик', icon: 'fa-bottle-water' },
+            { name: '14. Газовая плита', price: 1500, category: 'cocaine', max: 2, job: 'Варщик', icon: 'fa-fire' },
+            { name: '15. Кастрюля', price: 50, category: 'cocaine', max: 10, job: 'Варщик', icon: 'fa-kitchen-set' },
+            { name: '16. Ведро', price: 75, category: 'cocaine', max: 10, job: 'Варщик', icon: 'fa-bucket' },
+            { name: '17. Листья коки', price: 50, category: 'cocaine', max: 10, job: 'Варщик', icon: 'fa-leaf' },
+            { name: '18. Аккумулятор', price: 150, category: 'cocaine', max: 10, job: 'Варщик', icon: 'fa-car-battery' },
+            { name: '19. Газовый баллон', price: 350, category: 'cocaine', max: 8, job: 'Варщик', icon: 'fa-database' },
+            { name: '20. Сушильная стойка', price: 1500, category: 'cocaine', max: 2, job: 'Варщик', icon: 'fa-grip-lines' },
+            { name: '21. Ящик для кокаина', price: 100, category: 'cocaine', max: 4, job: 'Варщик', icon: 'fa-box' },
+            { name: '22. Экстрактор кокаина', price: 1750, category: 'cocaine', max: 2, job: 'Варщик', icon: 'fa-gear' },
+            { name: '23. Пищевая сода', price: 50, category: 'cocaine', max: 5, job: 'Варщик', icon: 'fa-cubes' },
+
+            { name: '24. Desert Eagle', price: 215, category: 'weapons', job: 'Оружейник', icon: 'fa-gun' },
+            { name: '25. Fiveseven', price: 205, category: 'weapons', job: 'Оружейник', icon: 'fa-gun' },
+            { name: '26. Glock', price: 160, category: 'weapons', job: 'Оружейник', icon: 'fa-gun' },
+            { name: '27. P228', price: 185, category: 'weapons', job: 'Оружейник', icon: 'fa-gun' },
+            { name: '28. AK47 (Ящик)', price: 2450, category: 'weapons', job: 'Оружейник', icon: 'fa-boxes-stacked' },
+            { name: '29. MP5 (Ящик)', price: 2200, category: 'weapons', job: 'Оружейник', icon: 'fa-boxes-stacked' },
+            { name: '30. M4 (Ящик)', price: 2450, category: 'weapons', job: 'Оружейник', icon: 'fa-boxes-stacked' },
+            { name: '31. Mac 10 (Ящик)', price: 2150, category: 'weapons', job: 'Оружейник', icon: 'fa-boxes-stacked' },
+            { name: '32. Pump shotgun (Ящик)', price: 1750, category: 'weapons', job: 'Оружейник', icon: 'fa-boxes-stacked' },
+            { name: '33. Sniper rifle (Ящик)', price: 3750, category: 'weapons', job: 'Оружейник', icon: 'fa-boxes-stacked' },
+
+            { name: '34. Апельсин', price: 120, category: 'food', desc: 'Сытость +18', icon: 'fa-apple-whole' },
+            { name: '35. Банан', price: 140, category: 'food', desc: 'Сытость +22', icon: 'fa-lemon' },
+            { name: '36. Арбуз', price: 260, category: 'food', desc: 'Сытость +35', icon: 'fa-bowl-food' },
+            { name: '37. Бургер', price: 380, category: 'food', desc: 'Сытость +45', icon: 'fa-burger' },
+            { name: '38. Хот-дог', price: 320, category: 'food', desc: 'Сытость +38', icon: 'fa-hotdog' },
+            { name: '39. Пицца', price: 480, category: 'food', desc: 'Сытость +55', icon: 'fa-pizza-slice' },
+            { name: '40. Газировка', price: 100, category: 'food', desc: 'Сытость +12', icon: 'fa-bottle-droplet' },
+            { name: '41. Молоко', price: 190, category: 'food', desc: 'Сытость +25', icon: 'fa-glass-water' }
+        ];
+
+        // 23 DONATE DATA
+        const DONATE_DATA = [
+            { id: 'vip_3d', name: 'VIP Status (3 дня)', category: 'privileges', price: '99 ₽', icon: 'fa-crown', color: 'text-amber-400', badge: 'VIP', model: 'models/player/police.mdl', desc: 'Начальный донат-статус с доступом к VIP профессиям.', features: ['Доступ к VIP профессиям', 'Прирост зарплаты +25%', 'Увеличенный лимит предметов'] },
+            { id: 'vip_7d', name: 'VIP Status (7 дней)', category: 'privileges', price: '199 ₽', icon: 'fa-crown', color: 'text-amber-400', badge: 'VIP', model: 'models/player/police.mdl', desc: 'Недельная VIP-подписка с бонусами к заработку.', features: ['Доступ к VIP профессиям', 'Прирост зарплаты +25%', 'Увеличенный лимит предметов', 'Префикс [VIP] в чате'] },
+            { id: 'vip_30d', name: 'VIP Status (30 дней)', category: 'privileges', price: '499 ₽', icon: 'fa-crown', color: 'text-amber-400', badge: 'VIP', model: 'models/player/police.mdl', desc: 'Месячный VIP статус. Полный пакет начальных привилегий.', features: ['Доступ ко всем VIP работам', 'Прирост зарплаты +30%', 'Скидка в магазине 10%', 'Префикс [VIP] в чате'] },
+            { id: 'prem_3d', name: 'PREMIUM Status (3 дня)', category: 'privileges', price: '199 ₽', icon: 'fa-gem', color: 'text-purple-400', badge: 'PREMIUM', model: 'models/player/swat.mdl', desc: 'Продвинутый статус для активных игроков.', features: ['Доступ к Premium профессиям (Джаггернаут, ФБР)', 'Прирост зарплаты +50%', 'Увеличенный лимит маников'] },
+            { id: 'prem_7d', name: 'PREMIUM Status (7 дней)', category: 'privileges', price: '399 ₽', icon: 'fa-gem', color: 'text-purple-400', badge: 'PREMIUM', model: 'models/player/swat.mdl', desc: 'Неделя максимального комфорта и эксклюзивного оружия.', features: ['Доступ к Premium профессиям', 'Прирост зарплаты +50%', 'Эксклюзивный чат', 'Приоритет в очереди сервера'] },
+            { id: 'prem_30d', name: 'PREMIUM Status (30 дней)', category: 'privileges', price: '899 ₽', icon: 'fa-gem', color: 'text-purple-400', badge: 'PREMIUM', model: 'models/player/swat.mdl', desc: 'Максимальный статус на 30 дней. Все возможности сервера!', features: ['Доступ ко всем VIP и Premium работам', 'Прирост зарплаты +100%', 'Донат-фичи и скидка 20%', 'Красивый сияющий префикс'] },
+
+            { id: 'money_50k', name: '50 000 ₽ На счёт', category: 'money', price: '50 ₽', icon: 'fa-sack-dollar', color: 'text-emerald-400', badge: 'ВАЛЮТА', model: 'models/props_buildup/money_bundle.mdl', desc: 'Мгновенное пополнение игрового баланса.', features: ['Зачисляется на банк сразу после оплаты'] },
+            { id: 'money_150k', name: '150 000 ₽ На счёт', category: 'money', price: '120 ₽', icon: 'fa-sack-dollar', color: 'text-emerald-400', badge: 'ВАЛЮТА', model: 'models/props_buildup/money_bundle.mdl', desc: 'Выгодный пакет игровой валюты с экономией 20%.', features: ['Зачисляется на банк сразу после оплаты', 'Бонус +10,000 ₽'] },
+            { id: 'money_500k', name: '500 000 ₽ На счёт', category: 'money', price: '350 ₽', icon: 'fa-sack-dollar', color: 'text-emerald-400', badge: 'ВАЛЮТА', model: 'models/props_buildup/money_bundle.mdl', desc: 'Огромный капитал для старта собственного бизнеса.', features: ['Зачисляется на банк сразу после оплаты', 'Максимальная выгода'] },
+
+            { id: 'wep_m82', name: 'BARRETT M82', category: 'weapons', price: 'Эксклюзив', icon: 'fa-crosshair', color: 'text-rose-400', badge: 'СНАЙПЕРСКАЯ', model: 'models/weapons/w_barrett_m82.mdl', desc: 'Тяжелая крупнокалиберная снайперская винтовка. Уничтожает цель с 1 выстрела.', features: ['Калибр: .50 BMG', 'Высочайший урон', 'Интегрированная оптика'] },
+            { id: 'wep_m98b', name: 'BARRETT M98B', category: 'weapons', price: 'Эксклюзив', icon: 'fa-crosshair', color: 'text-rose-400', badge: 'СНАЙПЕРСКАЯ', model: 'models/weapons/w_barrett_m98b.mdl', desc: 'Высокоточная донат-винтовка с глушителем и минимальной отдачей.', features: ['Калибр: .338 LM', 'Бесшумная стрельба', 'Дальность 1500м'] },
+            { id: 'wep_inter', name: 'INTERVENTION', category: 'weapons', price: '499 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', model: 'models/weapons/w_cheytac_m200.mdl', desc: 'Легендарная винтовка CheyTac M200 Intervention.', features: ['Высокая скорость зума', 'Огромная пробиваемость'] },
+            { id: 'wep_aw50', name: 'AW-50', category: 'weapons', price: '599 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', model: 'models/weapons/w_aw50.mdl', desc: 'Усиленная модификация AWP под калибр .50 BMG.', features: ['Пробивает легкую броню авто', 'Убийство в туловище'] },
+            { id: 'wep_psg1', name: 'HK PSG-1', category: 'weapons', price: '349 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', model: 'models/weapons/w_psg1.mdl', desc: 'Полуавтоматическая снайперская винтовка с высокой скорострельностью.', features: ['Магазин: 20 патронов', 'Полуавтоматический режим'] },
+            { id: 'wep_svd', name: 'SVD ДРАГУНОВ', category: 'weapons', price: '299 ₽', icon: 'fa-crosshair', color: 'text-amber-400', badge: 'СНАЙПЕРСКАЯ', model: 'models/weapons/w_svd.mdl', desc: 'Классическая снайперская винтовка Драгунова со снайперским прицелом ПСО-1.', features: ['Надежность и доступность', 'Прицел ПСО-1'] },
+
+            { id: 'wep_hk416', name: 'HK 416', category: 'weapons', price: '149 ₽', icon: 'fa-gun', color: 'text-cyan-400', badge: 'ШТУРМОВАЯ', model: 'models/weapons/w_hk416.mdl', desc: 'Немецкий автоматический карабин с высокой точностью на средней дистанции.', features: ['Низкая отдача', 'Темп стрельбы 850 выстр/мин'] },
+            { id: 'wep_ak47d', name: 'AK-47 Gold Edition', category: 'weapons', price: '99 ₽', icon: 'fa-gun', color: 'text-cyan-400', badge: 'ШТУРМОВАЯ', model: 'models/weapons/w_ak47.mdl', desc: 'Позолоченный автомат Калашникова с повышенным уроном.', features: ['Повышенный урон', 'Увеличенный магазин'] },
+
+            { id: 'wep_double', name: 'ДВОЙНОЕ РУЖЁ', category: 'weapons', price: 'Эксклюзив', icon: 'fa-burst', color: 'text-rose-400', badge: 'ДРОБОВИК', model: 'models/weapons/w_doublebarrel.mdl', desc: 'Двуствольный обрез с дуплетом. Мгновенный урон в ближнем бою.', features: ['Смертоносный дуплет', 'Мгновенная перезарядка'] },
+            { id: 'wep_usas', name: 'USAS-12', category: 'weapons', price: '249 ₽', icon: 'fa-burst', color: 'text-cyan-400', badge: 'ДРОБОВИК', model: 'models/weapons/w_usas12.mdl', desc: 'Автоматический гладкоствольный дробовик с дисковым магазином на 20 патронов.', features: ['Автоматический огонь', 'Барабанный магазин'] },
+            { id: 'wep_striker', name: 'STRIKER-12', category: 'weapons', price: '199 ₽', icon: 'fa-burst', color: 'text-cyan-400', badge: 'ДРОБОВИК', model: 'models/weapons/w_striker12.mdl', desc: 'Боевой револьверный дробовик для зачистки помещений.', features: ['Ёмкость: 12 патронов', 'Широкая осыпь'] },
+
+            { id: 'wep_m249', name: 'M249 SAW', category: 'weapons', price: '399 ₽', icon: 'fa-dragon', color: 'text-purple-400', badge: 'ПУЛЕМЁТ', model: 'models/weapons/w_m249.mdl', desc: 'Ручной пулемёт с патронной лентой на 100 выстрелов для подавления противника.', features: ['Лента 100 патронов', 'Огромная плотность огня'] },
+            { id: 'wep_m60', name: 'M60', category: 'weapons', price: '449 ₽', icon: 'fa-dragon', color: 'text-purple-400', badge: 'ПУЛЕМЁТ', model: 'models/weapons/w_m60.mdl', desc: 'Тяжелый пулемёт 7.62mm. Пробивает стены и бронетехнику.', features: ['Высокий урон за выстрел', 'Патронная лента'] },
+            { id: 'wep_pkt', name: 'ПКТ', category: 'weapons', price: '549 ₽', icon: 'fa-dragon', color: 'text-purple-400', badge: 'ПУЛЕМЁТ', model: 'models/weapons/w_pkt.mdl', desc: 'Танковый пулемёт Калашникова, адаптированный под ручную стрельбу.', features: ['Максимальный урон в классе', 'Калибр 7.62x54mm R'] }
+        ];
+
+        // Render Functions
+        function renderJobs(filter = currentJobCategory, query = '') {
+            const grid = document.getElementById('jobsGrid');
+            grid.innerHTML = '';
+
+            JOBS_DATA.forEach(job => {
+                if (filter !== 'all' && job.category !== filter) return;
+                if (query && !job.name.toLowerCase().includes(query.toLowerCase())) return;
+
+                const currentCount = job.count !== undefined ? job.count : 0;
+                const maxSlots = job.slots;
+                const isFull = maxSlots !== '∞' && currentCount >= parseInt(maxSlots);
+                const isDisabled = job.disabled || job.id === 'banned';
+
+                const card = document.createElement('div');
+
+                card.className = isDisabled 
+                    ? 'job-card liquid-glass-sub p-3 rounded-2xl flex items-center justify-between border border-rose-900/40 opacity-40 grayscale gap-3 select-none pointer-events-none'
+                    : 'job-card liquid-glass-sub p-3 rounded-2xl flex items-center justify-between border border-white/10 transition hover:border-cyan-400/50 gap-3';
+
+                let badgeStyle = 'bg-cyan-400/20 text-cyan-300 border-cyan-400/30';
+                if (isFull) {
+                    badgeStyle = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+                }
+
+                let actionButtonHtml = '';
+                if (isDisabled) {
+                    actionButtonHtml = '<button disabled class="px-3.5 py-2 bg-slate-900/90 border border-white/10 text-slate-500 font-black text-xs rounded-xl shrink-0 cursor-not-allowed">ВЫБРАТЬ</button>';
+                } else if (isFull) {
+                    actionButtonHtml = '<button disabled class="px-3.5 py-2 bg-slate-900/90 border border-rose-500/30 text-rose-400 font-black text-xs rounded-xl shrink-0 cursor-not-allowed opacity-75">МЕСТ НЕТ</button>';
+                } else {
+                    actionButtonHtml = '<button onclick="selectJob(\'' + job.name + '\', \'' + job.cmd + '\')" class="px-3.5 py-2 bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl transition shadow-md shadow-cyan-500/20 active:scale-95 shrink-0">ВЫБРАТЬ</button>';
+                }
+
+                card.innerHTML = 
+                    '<div class="flex items-center gap-3 overflow-hidden flex-1">' +
+                        '<div class="w-14 h-14 rounded-xl bg-slate-900/90 border border-white/20 flex items-center justify-center ' + job.color + ' text-xl shadow-inner shrink-0 relative overflow-hidden group">' +
+                            '<i class="fa-solid ' + job.icon + '"></i>' +
+                        '</div>' +
+                        '<div class="flex-1 overflow-hidden">' +
+                            '<div class="flex items-center gap-1.5 truncate">' +
+                                '<h4 class="font-extrabold text-xs text-white truncate text-shadow-sm">' + job.name + '</h4>' +
+                                '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full ' + badgeStyle + ' font-bold border shrink-0">' + currentCount + '/' + maxSlots + '</span>' +
+                            '</div>' +
+                            '<p class="text-[11px] text-slate-300 truncate mt-0.5 text-shadow-sm">' + job.desc + '</p>' +
+                            '<div class="text-xs font-extrabold text-emerald-400 font-mono mt-1 flex items-center gap-1 text-shadow-sm">' +
+                                '<i class="fa-solid fa-sack-dollar text-[10px]"></i> ' + job.salary +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    actionButtonHtml;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderShop(filter = 'all', query = '') {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+
+            SHOP_DATA.forEach(item => {
+                if (filter !== 'all' && item.category !== filter) return;
+                if (query && !item.name.toLowerCase().includes(query.toLowerCase())) return;
+
+                const card = document.createElement('div');
+                card.className = 'shop-card liquid-glass-sub p-3 rounded-2xl flex items-center justify-between border border-white/10 transition hover:border-emerald-400/50 gap-3';
+                
+                const badgeText = item.max ? 'Мин: ' + item.max : (item.job || 'Предмет');
+                
+                card.innerHTML = 
+                    '<div class="flex items-center gap-3 overflow-hidden flex-1">' +
+                        '<div class="w-14 h-14 rounded-xl bg-slate-900/90 border border-white/20 flex items-center justify-center text-emerald-400 text-xl shadow-inner shrink-0 relative overflow-hidden group">' +
+                            '<i class="fa-solid ' + item.icon + '"></i>' +
+                        '</div>' +
+                        '<div class="flex-1 overflow-hidden">' +
+                            '<div class="flex items-center gap-1.5 truncate">' +
+                                '<h4 class="font-extrabold text-xs text-white truncate text-shadow-sm">' + item.name + '</h4>' +
+                                '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 font-bold border border-emerald-400/30 shrink-0">' + badgeText + '</span>' +
+                            '</div>' +
+                            '<p class="text-[11px] text-slate-300 truncate mt-0.5 text-shadow-sm">' + (item.desc || (item.job ? 'Доступно: ' + item.job : 'Товар магазина')) + '</p>' +
+                            '<div class="text-xs font-extrabold text-emerald-400 font-mono mt-1 text-shadow-sm">' + item.price + ' ₽</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<button onclick="buyShopItem(\'' + item.name + '\', ' + item.price + ')" class="px-3.5 py-2 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 text-slate-950 font-black text-xs rounded-xl transition shadow-md shadow-emerald-500/20 active:scale-95 shrink-0">' +
+                        'КУПИТЬ' +
+                    '</button>';
+                grid.appendChild(card);
+            });
+        }
+
+        function renderDonate(filter = 'all') {
+            const grid = document.getElementById('donateGrid');
+            grid.innerHTML = '';
+
+            DONATE_DATA.forEach(item => {
+                if (filter !== 'all' && item.category !== filter) return;
+
+                const card = document.createElement('div');
+                card.className = 'donate-card liquid-glass-sub p-4 rounded-2xl flex items-center justify-between border border-white/10 transition hover:border-amber-400/50 gap-4';
+                
+                let featuresHtml = '';
+                if (item.features && item.features.length) {
+                    featuresHtml = '<div class="flex flex-wrap gap-1.5 mt-2">';
+                    item.features.forEach(feat => {
+                        featuresHtml += '<span class="text-[10px] bg-white/5 border border-white/10 text-slate-200 px-2 py-0.5 rounded-lg flex items-center gap-1 text-shadow-sm"><i class="fa-solid fa-check text-amber-400 text-[9px]"></i> ' + feat + '</span>';
+                    });
+                    featuresHtml += '</div>';
+                }
+
+                card.innerHTML = 
+                    '<div class="flex items-center gap-4 overflow-hidden flex-1">' +
+                        '<div class="donate-model-preview w-24 h-24 rounded-2xl bg-slate-900/90 border border-white/20 flex flex-col items-center justify-center relative shadow-inner shrink-0 overflow-hidden group" data-model="' + (item.model || '') + '" data-id="' + item.id + '">' +
+                            '<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>' +
+                            '<i class="fa-solid ' + item.icon + ' ' + item.color + ' text-3xl z-0 transition group-hover:scale-110 duration-300"></i>' +
+                            '<span class="absolute bottom-1.5 z-20 text-[9px] font-mono text-slate-300 font-bold uppercase tracking-wider bg-black/60 px-2 py-0.5 rounded-full border border-white/10">' + (item.badge || 'ITEM') + '</span>' +
+                        '</div>' +
+
+                        '<div class="flex-1 overflow-hidden">' +
+                            '<div class="flex items-center gap-2">' +
+                                '<h4 class="font-extrabold text-sm text-white truncate text-shadow-sm">' + item.name + '</h4>' +
+                                '<span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30">' + item.price + '</span>' +
+                            '</div>' +
+                            '<p class="text-xs text-slate-300 mt-1 line-clamp-2 leading-relaxed text-shadow-sm">' + (item.desc || 'Эксклюзивный предмет донат-магазина') + '</p>' +
+                            featuresHtml +
+                        '</div>' +
+                    '</div>' +
+
+                    '<div class="flex flex-col items-end justify-between gap-3 shrink-0 border-l border-white/10 pl-4 h-full">' +
+                        '<div class="text-right">' +
+                            '<div class="text-[10px] text-slate-400 uppercase font-mono">Стоимость</div>' +
+                            '<div class="text-sm font-black text-amber-300 font-mono tracking-tight text-shadow-sm">' + item.price + '</div>' +
+                        '</div>' +
+                        '<button onclick="buyDonateItem(\'' + item.id + '\', \'' + item.name + '\', \'' + item.price + '\')" class="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl transition shadow-lg shadow-amber-500/25 active:scale-95 flex items-center gap-1.5 shrink-0">' +
+                            '<i class="fa-solid fa-cart-shopping"></i> КУПИТЬ' +
+                        '</button>' +
+                    '</div>';
+                grid.appendChild(card);
+            });
+        }
+
+        // Actions
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab-btn').forEach(b => {
+                b.className = "nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white hover:bg-white/10";
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('flex');
+            btn.className = "nav-tab-btn w-full px-4 py-3 rounded-xl flex items-center justify-between text-xs font-bold transition theme-active-tab border";
+        }
+
+        function selectJob(jobName, cmd) {
+            if (window.gmod && window.gmod.changeJob) {
+                window.gmod.changeJob(cmd);
+            }
+            showToast('Вы выбрали профессию: ' + jobName);
+            document.getElementById('playerJobDisplay').innerText = jobName;
+        }
+
+        function buyShopItem(itemName, price) {
+            if (currentMoney >= price) {
+                currentMoney -= price;
+                updateMoneyDisplay();
+                if (window.gmod && window.gmod.buyEntity) {
+                    window.gmod.buyEntity(itemName);
+                }
+                showToast('Куплено: ' + itemName);
+            } else {
+                showToast('Недостаточно средств!');
+            }
+        }
+
+        function buyDonateItem(itemId, itemName, itemPrice) {
+            if (window.gmod && window.gmod.buyDonateItem) {
+                window.gmod.buyDonateItem(itemId, itemName, itemPrice);
+            } else if (window.gmod && window.gmod.buyDonate) {
+                window.gmod.buyDonate(itemId);
+            }
+            showToast('Запрос на покупку: ' + (itemName || itemId));
+        }
+
+        function updateMoneyDisplay() {
+            const formatted = currentMoney.toLocaleString('ru-RU') + ' ₽';
+            document.getElementById('playerMoneyHeader').innerText = formatted;
+            document.getElementById('playerMoneySidebar').innerText = formatted;
+        }
+
+        function filterJobs(cat, btn) {
+            currentJobCategory = cat;
+            document.querySelectorAll('.job-filter-btn').forEach(b => b.className = "job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0");
+            btn.className = "job-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-400 text-slate-950 shrink-0";
+            renderJobs(cat, document.getElementById('jobSearch').value);
+        }
+
+        function searchJobs() {
+            renderJobs(currentJobCategory, document.getElementById('jobSearch').value);
+        }
+
+        function filterShop(cat, btn) {
+            currentShopCategory = cat;
+            document.querySelectorAll('.shop-filter-btn').forEach(b => b.className = "shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0");
+            btn.className = "shop-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-emerald-400 text-slate-950 shrink-0";
+            renderShop(cat, document.getElementById('shopSearch').value);
+        }
+
+        function searchShop() {
+            renderShop(currentShopCategory, document.getElementById('shopSearch').value);
+        }
+
+        function filterDonate(cat, btn) {
+            currentDonateCategory = cat;
+            document.querySelectorAll('.donate-filter-btn').forEach(b => b.className = "donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0");
+            btn.className = "donate-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-amber-400 text-slate-950 shrink-0";
+            renderDonate(cat);
+        }
+
+        function filterRuleCategory(cat, btn) {
+            document.querySelectorAll('.rule-cat-btn').forEach(b => {
+                b.className = "rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0";
+            });
+            if (btn) {
+                btn.className = "rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-400 text-slate-950 shrink-0";
+            }
+            
+            const query = (document.getElementById('ruleSearch') ? document.getElementById('ruleSearch').value : '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.rule-card');
+            
+            cards.forEach(card => {
+                const matchesCat = (cat === 'all' || card.getAttribute('data-category') === cat);
+                const searchText = (card.getAttribute('data-search') || '').toLowerCase();
+                const matchesSearch = !query || searchText.includes(query);
+                
+                if (matchesCat && matchesSearch) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function searchRules() {
+            const activeBtn = document.querySelector('.rule-cat-btn.bg-cyan-400');
+            const activeCat = activeBtn ? activeBtn.getAttribute('data-cat') : 'all';
+            filterRuleCategory(activeCat, activeBtn);
+        }
+
+        function closeMenu() {
+            if (window.gmod && window.gmod.closeF4Menu) {
+                window.gmod.closeF4Menu();
+            }
+        }
+
+        function openRules() {
+            if (window.gmod && window.gmod.openRules) {
+                window.gmod.openRules();
+            } else {
+                const modal = document.getElementById('rulesModal');
+                if (modal) modal.classList.remove('hidden');
+            }
+        }
+
+        function closeRulesModal() {
+            const modal = document.getElementById('rulesModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // Live updating functions for GMod Lua integration
+        function updateJobCount(cmd, count) {
+            const job = JOBS_DATA.find(j => j.cmd === cmd || j.id === cmd);
+            if (job) {
+                job.count = count;
+                renderJobs(currentJobCategory, document.getElementById('jobSearch').value);
+            }
+        }
+
+        function setJobCounts(countsObj) {
+            if (!countsObj) return;
+            JOBS_DATA.forEach(j => {
+                if (countsObj[j.cmd] !== undefined) {
+                    j.count = countsObj[j.cmd];
+                } else if (countsObj[j.id] !== undefined) {
+                    j.count = countsObj[j.id];
+                }
+            });
+            renderJobs(currentJobCategory, document.getElementById('jobSearch').value);
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'liquid-glass px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-xl border border-cyan-400/40 flex items-center gap-2';
+            toast.innerHTML = '<i class="fa-solid fa-circle-info text-cyan-400"></i> <span>' + msg + '</span>';
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function initHorizontalMouseWheel() {
+            const scrollContainers = document.querySelectorAll('.overflow-x-auto');
+            scrollContainers.forEach(container => {
+                container.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        container.scrollLeft += e.deltaY * 0.8;
+                    }
+                }, { passive: false });
+            });
+        }
+
+        window.onload = function() {
+            renderJobs('civilian');
+            renderShop('printers');
+            renderDonate('privileges');
+            initHorizontalMouseWheel();
+        };
+    </script>
+
+    <!-- Rules Modal Overlay -->
+    <div id="rulesModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="w-[980px] h-[85vh] max-w-[96vw] max-h-[92vh] liquid-glass rounded-3xl p-6 flex flex-col gap-4 border border-white/20 shadow-2xl overflow-hidden">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-3 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 flex items-center justify-center text-white text-lg shadow-lg shadow-rose-500/30">
+                        <i class="fa-solid fa-gavel"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-lg text-white flex items-center gap-2 text-shadow-sm">
+                            ПРАВИЛА СЕРВЕРА NEXUS CITY RP
+                        </h3>
+                        <p class="text-[11px] text-slate-300">Официальный свод правил для игроков и администрации. Незнание правил не освобождает от ответственности.</p>
+                    </div>
+                </div>
+                <button onclick="closeRulesModal()" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-rose-500/80 text-slate-300 hover:text-white flex items-center justify-center transition shrink-0">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="flex items-center justify-between gap-3 shrink-0">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none whitespace-nowrap max-w-[calc(100%-16rem)]">
+                    <button data-cat="all" onclick="filterRuleCategory('all', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition bg-cyan-400 text-slate-950 shrink-0">Все правила</button>
+                    <button data-cat="intro" onclick="filterRuleCategory('intro', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">Вводное</button>
+                    <button data-cat="1" onclick="filterRuleCategory('1', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">1. Основное (1.1-1.40)</button>
+                    <button data-cat="2" onclick="filterRuleCategory('2', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">2. Чат (2.0-2.6)</button>
+                    <button data-cat="3" onclick="filterRuleCategory('3', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">3. Строительство (3.0-3.4)</button>
+                    <button data-cat="4" onclick="filterRuleCategory('4', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">4. Госы (4.0-4.10)</button>
+                    <button data-cat="5" onclick="filterRuleCategory('5', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">5. Криминал (5.0-5.9)</button>
+                    <button data-cat="6" onclick="filterRuleCategory('6', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">6. Админы (6.0-6.13)</button>
+                    <button data-cat="7" onclick="filterRuleCategory('7', this)" class="rule-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold transition liquid-glass-sub text-slate-200 hover:text-white shrink-0">7. Регламент</button>
+                </div>
+
+                <div class="relative w-60 shrink-0">
+                    <input type="text" id="ruleSearch" onkeyup="searchRules()" placeholder="Поиск (1.8, RDM, Грабёж)..." class="w-full bg-slate-950/80 border border-cyan-500/40 rounded-xl px-3.5 py-1.5 pl-9 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-cyan-400"></i>
+                </div>
+            </div>
+            
+            <!-- Rules Content Grid Container -->
+            <div id="rulesListContainer" class="flex-1 overflow-y-auto pr-2 space-y-3 font-sans">
+                
+                <!-- SECTION 0: GENERAL TERMS -->
+                <div class="rule-card liquid-glass-sub p-4 rounded-2xl border border-white/10" data-category="intro" data-search="вводное положения правила соглашение выпрашивать мультиаккаунт discord">
+                    <div class="font-black text-cyan-400 text-xs tracking-wider uppercase flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> ВВОДНЫЕ ПОЛОЖЕНИЯ И РЕГЛАМЕНТ ПРОЕКТА</span>
+                        <span class="text-[10px] bg-cyan-400/20 text-cyan-300 px-2 py-0.5 rounded border border-cyan-400/30">ОБЯЗАТЕЛЬНО</span>
+                    </div>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-300 leading-relaxed">
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Играя на нашем проекте, вы соглашаетесь со всеми правилами.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Незнание правил не освобождает от ответственности.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Администрация вправе изменить правила в любой момент.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> За нарушение правил в соцсетях/discord может быть выдано наказание.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Запрещено игнорировать требования Администрации при исполнении.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Запрещено выпрашивать у игроков/админов деньги, оружие или привилегии.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Запрещено обсуждение действий старшей администрации на любых ресурсах.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Считаете, что админ не прав? Оставьте жалобу на него в Discord.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-check text-cyan-400 text-xs mt-0.5"></i> Высшее руководство вправе в любой момент изменить роль любого админа.</li>
+                        <li class="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-start gap-2"><i class="fa-solid fa-ban text-rose-400 text-xs mt-0.5"></i> Запрещён мультиаккаунт (исключение: разрешение высшей администрации).</li>
+                    </ul>
+                </div>
+
+                <!-- SECTION 1: MAIN RULES (1.1 - 1.40) -->
+                <div class="rule-card space-y-2.5" data-category="1" data-search="1.1 non rp 1.2 non rp time 1.3 non rp gun 1.4 fear rp 1.5 power gaming 1.6 nlr 1.7 free damage 1.8 free kill 1.9 rdm 1.10 free demote 1.11 job abuse 1.12 inventory abuse 1.13 green zone abuse 1.14 маскировка фбр 1.15 body block 1.16 crowd rp 1.17 nickname 1.18 мэр 1.19 event 1.20 bug use 1.21 неадекватность 1.22 помеха разборкам 1.23 cheats 1.24 mass rule breaking 1.25 donate 1.26 heal armor 1.27 leave 1.28 player model 1.29 provocation 1.30 механ 1.31 сотрудничество маньяк 1.32 жалоба 1.33 rp развод казино 1.34 captive rule 1.35 rule abuse 1.37 deception rule 1.39 gameplay ruin">
+                    
+                    <div class="font-black text-amber-400 text-xs tracking-wider uppercase flex items-center gap-2 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-shield-halved"></i> 1. ОСНОВНЫЕ ПРАВИЛА СЕРВЕРА
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+                        
+                        <!-- 1.1 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.1 non rp забаненный кулаки">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.1] Non RP</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Нелогичное/неролевое поведение или выход за рамки профессии. Запрещено убивать «Забаненных» ничем кроме кулаков.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.2 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.2 non rp time выговор">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.2] Non RP Time</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 3 Days + [A] Выговор</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Проведение Non RP события нарушает правила проекта.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.3 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.3 non rp gun стрельба оружие ивент">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.3] Non RP Gun</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Стрельба с оружия, которое не прописано в профессии. Исключение: ивенты (Босс Вертолёт/Нашествие зомби/Альянс). Можно угрожать оружием, не подходящим профессии (стрелять запрещено).</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.4 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.4 fear rp страх 1x7">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.4] Fear RP</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Обязанность отыгрывать страх. Если угрожают больше чем 1x7 пропа — можно убежать или достать оружие. Запрещается доставать оружие против вооружённого (можно при уроне вблизи). Запрещено избегать RP, доставая оружие и улетая.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.5 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.5 power gaming пг 3 персонажа мафия джаггернаут">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.5] Power Gaming (PG)</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет идти на вооружённый конфликт против 3 и более персонажей. Исключения: защита базы во время рейда/обыска, Глава мафии (до 4), Джаггернаут (до 4).</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.6 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.6 nlr жизнь память 1x5x1">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.6] NLR</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 15 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет помнить что-либо о прошлой RP жизни после смерти. Запрет возвращаться к месту рейда/обыска ближе 1x5x1 пропа.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.7 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.7 free damage фри дамаг урон">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.7] Free Damage</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min (Стакается)</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет наносить урон без RP причины. Исключение: линия огня, RP драки, ответ на оскорбление.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.8 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.8 free kill фри килл убийство">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.8] Free Kill</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min (Стакается)</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет убивать без RP причины. Исключение: Забаненные, линия огня, самооборона, угроза жизни.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.9 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.9 rdm рдм массовое убийство">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.9] RDM</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold border border-rose-500/40">Ban - 3 Days to 1 Month</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Убийство от 4 и более игроков без RP причины.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.10 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.10 free demote фри демоут увольнение">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.10] Free Demote</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 to 20 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Увольнение без RP причины. Нельзя увольнять кого-либо кроме гос. служащих.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.11 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.11 job abuse джоб абуз профессия 10 минут">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.11] Job Abuse</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Смена профессии ради личной выгоды / продажа доступа за валюту. Нельзя менять профессию в одной категории в течение 10 минут.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.12 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.12 inventory abuse инвентарь абуз склад рейд">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.12] Inventory Abuse</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет складывать/доставать вещи за 1 минуту до обыска/рейда/войны.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.13 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.13 green zone abuse гз зелёная зона">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.13] Green Zone Abuse</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 20 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Заход в Green Zone для избегания RP процессов.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.14 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-amber-500/30 flex flex-col justify-between bg-amber-950/10" data-category="1" data-search="1.14 маскировка фбр госслужащие шпионаж скрытые аресты">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-amber-300">[1.14] Маскировка</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрещено использовать маскировку госслужащим: Полиция, Шеф полиции, Мэр, SWAT, SWAT Снайпер, SWAT Медик, Глава SWAT, Джаггернаут. <b class="text-amber-300">Исключение: ФБР.</b> Агенты ФБР могут маскироваться (включая маскировку под Мэра, Разнорабочего, Лесоруба, Забаненного) для ведения шпионских/следственных операций и скрытых арестов. Криминал может использовать маскировку только для криминальных действий.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.15 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.15 body block блокировка тел коллизия">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.15] Body Block</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет использовать коллизию тел для блокировки проходов.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.16 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.16 crowd rp свидетели общественные места npc">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.16] Crowd RP</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет криминальных действий при свидетелях и в общественных местах. NPC и камеры считаются свидетелями. Подъезды не общественное место.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.17 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.17 nickname никнейм имя реклама">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.17] Nickname</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min / 1 Day</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет рекламных/оскорбительных/нечитабельных ников, а также копирования ника администратора.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.18 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.18 мэр похищение война 10 минут">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.18] Правило Мэра</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 25 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет похищать Мэра, объявлять войну, убивать или заказывать его в течение первых 10 минут с начала правления.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.19 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.19 event ивент постройки помеха">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.19] Event Interrupt</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 2 Hours + [A] Выговор</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет ломать постройки, убивать участников, мешать ивенту.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.20 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.20 bug use багоюз эксплойт 1 неделя">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.20] Bug Use</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold border border-rose-500/40">Ban - 1 Week + [A] Выговор</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет использовать баги в своих целях и умышленно скрывать их.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.21 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.21 неадекватность нацизм религия токсичность">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.21] Неадекватность</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 12 Hours to 3 Days</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет аморального, токсичного, нетерпимого поведения. Нацизм, экстремизм, оскорбление религии, политические провокации.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.22 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.22 помеха разборкам обман админа">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.22] Помеха Разборкам</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 30 Min (За обман 2 Hours)</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет мешать разборкам, искажать суть истории, обманывать администратора.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.23 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-rose-500/40 flex flex-col justify-between bg-rose-950/20" data-category="1" data-search="1.23 cheats читы софт пермабан perma">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-rose-400">[1.23] Cheats / Software</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600 text-white font-mono text-[10px] font-black tracking-wide border border-rose-400 shadow-md">PERMANENT BAN</span>
+                                </div>
+                                <p class="text-slate-200 text-[11px] leading-relaxed font-medium">Запрет хранить/использовать читы, скрипты, алиасы, боты.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.24 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.24 mass rule breaking массовое нарушение">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.24] Mass Rule Breaking</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold border border-rose-500/40">Ban - 1 Week + [A] Выговор</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Нарушение 4 и более правил в одной ситуации.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.25 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-amber-500/40 flex flex-col justify-between bg-amber-950/20" data-category="1" data-search="1.25 donate донат продажа реальные деньги">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-amber-300">[1.25] Donate Abuse</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600 text-white font-mono text-[10px] font-black tracking-wide border border-rose-400">PERMANENT BAN</span>
+                                </div>
+                                <p class="text-slate-200 text-[11px] leading-relaxed">Запрет манипулировать и обманывать игроков, опираясь на донат. Запрещена продажа доната за реальные деньги/игровую валюту. Запрещено выпрашивать у администрации донат.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.26 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.26 heal armor хил броня бой рейд">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.26] Heal / Armor In Fight</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет хила/брони во время рейда/войны/стрельбы. Исключение: аптечки-раздатчики, SWAT Медик может хилить аптечкой.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.27 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.27 leave лив выход rp процесс">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.27] Leave RP</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 1 Hour</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет выходить с сервера во время RP процесса. Исключение: техническая проблема (5 минут на перезаход).</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.28 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.28 player model модель хитбокс аутфиттер проп">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.28] Player Model</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Warn / Ban - 3 Hours</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет ставить модели с поломанными хитбоксами, прозрачные/дезориентирующие модели, модели выше/ниже стандарта HL2. Запрет использовать модели, скрывающие игрока (маскировка под проп).</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.29 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.29 provocation провокация рейд обыск">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.29] Provocation</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 15 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет провоцировать игроков на нарушение правил/рейд/обыск.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.30 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.30 механ движок злоупотребление">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.30] Механ</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 20 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет злоупотреблять возможностями движка без RP.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.31 + FULL FACTION MATRIX -->
+                        <div class="rule-card liquid-glass-sub p-3.5 rounded-xl border border-cyan-500/30 md:col-span-2 space-y-2" data-category="1" data-search="1.31 сотрудничество профессий мафия криминал полиция госы маньяк">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+                                <span class="font-extrabold text-cyan-300 text-xs">[1.31] Сотрудничество профессий и Регламент фракций</span>
+                                <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 10 Min</span>
+                            </div>
+                            <p class="text-slate-300 text-[11px]">Запрет сотрудничать фракциям, которые по лору не должны взаимодействовать.</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 pt-1 text-[11px]">
+                                <div class="bg-rose-950/30 p-2.5 rounded-xl border border-rose-500/20">
+                                    <div class="font-bold text-rose-300 mb-1"><i class="fa-solid fa-mask"></i> КРИМИНАЛ И МАНЬЯК</div>
+                                    <ul class="text-[10px] text-slate-300 space-y-1 leading-snug">
+                                        <li>• <b>Гангстер/Мафия/Варщики/Контрабандист:</b> Разрешены грабежи, рейды, заложники. Разрешено сотрудничать с криминалом. С полицией нельзя (если не объявлен мир).</li>
+                                        <li>• <b>Вор/Premium Вор:</b> Грабежи, воровство, маники разрешены. С полицией нельзя.</li>
+                                        <li>• <b>Наёмники:</b> Рейд по заказу. Маники разрешены. Грабить нельзя. Жить вместе ни с кем нельзя.</li>
+                                        <li>• <b class="text-purple-300">Маньяк:</b> Охота строго в одиночку. Запрещено жить или сотрудничать с кем-либо (включая криминал). Маники запрещены. Разрешена маскировка.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-500/20">
+                                    <div class="font-bold text-emerald-300 mb-1"><i class="fa-solid fa-user"></i> НЕЙТРАЛЬНЫЕ / ФАРМ</div>
+                                    <ul class="text-[10px] text-slate-300 space-y-1 leading-snug">
+                                        <li>• <b>Гражданский/Бездомный/Адвокат/Бизнесмен/Банкир/Охранник/Паркурист:</b> Запрещены рейды/грабежи. Маники запрещены (кроме Банкира/Бизнесмена). Жить с бандитами нельзя.</li>
+                                        <li>• <b>Повар/Медик/Продавец оружия:</b> Запрещены рейды/грабежи. Оружейник и Медик могут иметь маники (Повар - нет). Жить с криминалом нельзя.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-blue-950/30 p-2.5 rounded-xl border border-blue-500/20">
+                                    <div class="font-bold text-blue-300 mb-1"><i class="fa-solid fa-user-shield"></i> ПОЛИЦИЯ И ИЕРАРХИЯ</div>
+                                    <ul class="text-[10px] text-slate-300 space-y-1 leading-snug">
+                                        <li>• <b>Иерархия:</b> Мэр → Шеф полиции → Полиция / SWAT / SWAT Снайпер / SWAT Медик / Глава SWAT.</li>
+                                        <li>• <b>Ограничения:</b> Запрещены маники. Разрешено сотрудничать с гражданскими/нейтралами. Жить с криминалом запрещено.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1.32 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.32 подача жалобы мешание администрации">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.32] Подача Жалобы</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 20 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет жалоб без причины, помех работе администрации, жалоб во время RP.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.33 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-amber-500/30 flex flex-col justify-between bg-amber-950/10" data-category="1" data-search="1.33 rp развод казино выигрыш автоматы рулетка блэкджек">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-amber-300">[1.33] RP Развод</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold border border-rose-500/40">Ban - 1 Week</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет разводить игроков на деньги, не отдавать выигрыш в азартных играх. (На сервере есть казино: игровые автоматы, рулетка, блэкджек - выигрыш обязан отдаваться).</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.34 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.34 captive rule заложники выкуп 15 минут 50000">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.34] Captive Rule (Заложники)</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 30 Min</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет держать заложника более 15 минут. Запрет брать более 1 заложника (при войне - до 3). Запрет требовать выкуп выше 50.000$.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.35 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.35 rule abuse абуз правил дыры недоработки">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.35] Rule Abuse</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold border border-rose-500/30">Ban - 30 Min + [A] Выговор</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет придумывать/отрицать правила, злоупотреблять их недоработками.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.37 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.37 deception rule обман кража личности притворяться">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.37] Deception Rule</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold border border-rose-500/40">Ban - 1 Week</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет красть чью-то личность, притворяться другим человеком.</p>
+                            </div>
+                        </div>
+
+                        <!-- 1.39 -->
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 flex flex-col justify-between" data-category="1" data-search="1.39 gameplay ruin руин игры слив контроль">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-extrabold text-cyan-300">[1.39] Gameplay Ruin</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold border border-rose-500/40">Ban - 1 Day to Permanent</span>
+                                </div>
+                                <p class="text-slate-300 text-[11px] leading-relaxed">Запрет намеренно портить геймплей игрокам, устраивать постоянный контроль/слив.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- SECTION 2: CHAT & VOICE (2.0 - 2.6) -->
+                <div class="rule-card space-y-2.5" data-category="2" data-search="2.0 спам advert 2.1 voice abuse саундпад 2.2 insult оскорбление нация 2.3 metagaming mg мг дискорд 2.4 ролевые команды roll try do me 2.5 оскорбление игроков 2.6 вымогательство">
+                    <div class="font-black text-purple-300 text-xs tracking-wider uppercase flex items-center gap-2 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-comments"></i> 2. ПРАВИЛА ЧАТА И ГОЛОСОВОГО ОБЩЕНИЯ
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="2" data-search="2.0 спам advert">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.0] Spam</span><span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold">Mute 10m / Ban 10m</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет спамить. Реклама в /advert не чаще 1 раза в минуту.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="2" data-search="2.1 voice abuse микрофон">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.1] Voice Abuse</span><span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold">Gag 10m / Ban 10m</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет звукового спама, громких/несвязанных звуков.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="2" data-search="2.2 insult тяжелые оскорбления">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.2] Insult</span><span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold">Mute-Gag 10m / Ban up to Perma</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет оскорблений. Тяжёлые (раса/религия/полит.) особо караются.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="2" data-search="2.3 metagaming mg мг">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.3] Metagaming (MG)</span><span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold">Mute 10m / Ban 10m</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет использовать информацию вне RP / каналы связи вне игры.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="2" data-search="2.4 ролевые команды roll try do me">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.4] Ролевые команды</span><span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold">Ban - 15 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет неправильного использования /roll, /try, /do, /me.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="2" data-search="2.5 оскорбление игроков предметы ники">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.5] Оскорбление игроков</span><span class="px-2 py-0.5 rounded-full bg-rose-600 text-white font-mono text-[10px] font-black">PERMANENT BAN</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет оскорбительных ников/названий предметов/текста в чате.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10 md:col-span-2" data-category="2" data-search="2.6 вымогательство деньги аккаунты угрозы">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[2.6] Вымогательство</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 5 Hours + [A] Выговор</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет вымогать у игроков деньги/предметы/аккаунты через угрозы.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: BUILDING (3.0 - 3.4) -->
+                <div class="rule-card space-y-2.5" data-category="3" data-search="3.0 text screen abuse 3.2 door abuse 3.3 prop abuse 3.4 ming building fading doors">
+                    <div class="font-black text-emerald-300 text-xs tracking-wider uppercase flex items-center gap-2 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-cubes"></i> 3. ПРАВИЛА СТРОИТЕЛЬСТВА
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="3" data-search="3.0 text screen abuse экраны">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-emerald-300">[3.0] Text Screen Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 15 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет нечитабельных текстовых экранов, оскорбительных надписей.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="3" data-search="3.2 door abuse двери">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-emerald-300">[3.2] Door Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет слишком больших дверей, спампинга дверей вне своего дома.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="3" data-search="3.3 prop abuse пропам surf climb block push spam">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-emerald-300">[3.3] Prop Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет surf/climb/block/push/spam пропами.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="3" data-search="3.4 ming building застройка проходов">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-emerald-300">[3.4] Ming Building</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет нестандартного строительства, застройки проходов/общественных путей.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: GOVERNMENT (4.0 - 4.10) -->
+                <div class="rule-card space-y-2.5" data-category="4" data-search="4.0 арест 4.1 wanted розыск 4.2 arrest 4.3 mass arrest массовый 4.5 обыск 4.6 лицензии 4.7 рейд 4.8 арест после рейда 4.9 тюрьма сроки 4.10 работа гос сотрудников">
+                    <div class="font-black text-blue-300 text-xs tracking-wider uppercase flex items-center gap-2 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-user-shield"></i> 4. ПРАВИЛА ГОС. СЛУЖАЩИХ И ПОЛИЦИИ
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.0 арест связывание арест без причины">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.0] Арест</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет ареста/связывания без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.1 wanted розыск без причины">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.1] Free Wanted</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет объявлять в розыск без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.2 arrest незаконный арест">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.2] Free Arrest</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 15 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет ареста без законного основания, неправильного ареста.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.3 mass arrest массовый арест 3 дня выговор">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.3] Mass Arrest</span><span class="px-2 py-0.5 rounded-full bg-rose-600/30 text-rose-200 font-mono text-[10px] font-bold">Ban - 3 Days + [A] Выговор</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет ареста 4 и более игроков без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.5 обыск домов ордер">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.5] Обыск</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Обыск проводить только с законным основанием (угроза/нарушение/жалоба), не без причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.6 лицензии торговля оружием">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.6] Лицензии</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет продавать опасное оружие без лицензии.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.7 рейд обыск">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.7] Рейд (обыск) домов</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 15 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Рейд/обыск - только с законным основанием, по правилам.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.8 арест после рейда">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.8] Арест после рейда</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет ареста после рейда без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="4" data-search="4.9 заключение тюрьмы сроки 120 300 500 700 секунд">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-blue-300">[4.9] Заключение тюрьмы</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Сроки заключения 120-300 секунд (нарушение) и 300-500 (тяжкие). Запрет удерживать за 2-й более 500, за 3-й - 700.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3.5 rounded-xl border border-blue-500/30 md:col-span-2 space-y-1" data-category="4" data-search="4.10 работа гос сотрудников 4.10.1 4.10.2 4.10.3 4.10.4 4.10.5 4.10.6">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-1"><span class="font-extrabold text-blue-300">[4.10] Обязанности Гос. Сотрудников (4.10.1 - 4.10.6)</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-slate-300 pt-1">
+                                <div>• <b>4.10.1:</b> Не покидать свою профессию ради абуза (оружие).</div>
+                                <div>• <b>4.10.2:</b> Не сотрудничать против своей фракции.</div>
+                                <div>• <b>4.10.3:</b> Не использовать гос. форму для личной выгоды.</div>
+                                <div>• <b>4.10.4:</b> Не злоупотреблять полномочиями.</div>
+                                <div>• <b>4.10.5:</b> Не использовать оружие вне своей профессии.</div>
+                                <div>• <b>4.10.6:</b> Не применять силу без причины.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: CRIMINAL (5.0 - 5.7) -->
+                <div class="rule-card space-y-2.5" data-category="5" data-search="5.0 грабеж 50000 150000 5.1 рейд 5.2 похищение 5.3 взлом домов 5.4 разбой 5.5 захват базы 5.6 варка наркотиков мет кокаин 5.7 маньяк">
+                    <div class="font-black text-rose-400 text-xs tracking-wider uppercase flex items-center gap-2 border-b border-white/10 pb-2">
+                        <i class="fa-solid fa-skull"></i> 5. ПРАВИЛА КРИМИНАЛА И ПРЕСТУПНОСТИ
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.0 грабёж 50000 150000 limit">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.0] Грабёж</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 10 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Максимальный грабёж - 50.000$. Повтор грабежа того же - 10 минут, суммарно не более 150.000$ за 10 минут.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.1 рейд 2 человека 20 секунд">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.1] Рейд</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Рейд - только если больше 2 человек. Угроза - 20 секунд. Запрещён рейд без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.2 похищение 150000">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.2] Похищение</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 30 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет похищения без RP причины. Максимальный выкуп - 150.000$.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.3 взлом домов">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.3] Взлом домов</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 15 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет взлома чужих домов без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.4 разбой нападение общественные места">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.4] Разбой</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет разбоя/ограбления в общественном месте с применением силы без соблюдения RP правил (свидетели, Fear RP).</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.5 захват базы">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.5] Захват базы</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет захвата чужой базы/территории без RP причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="5" data-search="5.6 варка наркотиков мет кокаин спам">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-400">[5.6] Варка наркотиков</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Ban - 20 Min</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет абуза в варке (мет/кокаин) - спам, вне лаборатории.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-purple-500/40 bg-purple-950/20" data-category="5" data-search="5.7 маньяк одиночка маскировка манипринтеры rdm">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-300">[5.7] Маньяк</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">По общим (RDM / Free Kill)</span></div>
+                            <p class="text-slate-300 text-[11px]">Маньяк охотится на людей в одиночку, без групповых рейдов и союзников. Убийства и нападения только по RP, в одиночку; массовые убийства без RP причины караются как RDM/Free Kill по общим правилам. Запрещено сотрудничать и жить с любыми профессиями. Разрешена маскировка для скрытой охоты. Манипринтеры запрещены.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 6: ADMINISTRATION (6.0 - 6.13) -->
+                <div class="rule-card space-y-2.5" data-category="6" data-search="6.0 admin abuse 6.1 physics gun 6.2 ban 6.3 cloak 6.4 телепорты 6.5 godmode 6.6 rp разборки 6.7 структура власти 6.8 передача 6.9 привилегии 6.10 суд 6.11 приказы 6.12 информирование 6.13 снятие роли">
+                    <div class="font-black text-rose-400 text-xs tracking-wider uppercase flex items-center justify-between border-b border-rose-500/30 pb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-user-gear text-rose-400"></i> 6. АНТИ-АБУЗ И ПРАВИЛА ДЛЯ АДМИНИСТРАЦИИ (6.0 - 6.13)</span>
+                        <span class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded border border-rose-500/40">СТРОГИЙ КОНТРОЛЬ</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-rose-900/40 bg-rose-950/20" data-category="6" data-search="6.0 admin abuse админабуз">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.0] Admin Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-600 text-white font-mono text-[10px] font-bold">Снятие + Ban 1d</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет злоупотреблять полномочиями для личной выгоды.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.1 physics gun физган">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.1] Physics Gun Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Предупреждение + Ban 4h (Снятие)</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет использовать физик-ган против игроков не по делу.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.2 бан без причины друзья">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.2] Unjust Ban</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Снятие / выговор + Ban 6h</span></div>
+                            <p class="text-slate-300 text-[11px]">Выдавать баны только обоснованно, по правилам. Запрет бана без причины / на своих друзей.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.3 cloak клок невидимка">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.3] Cloak Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-600 text-white font-mono text-[10px] font-bold">Снятие</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет использовать cloak в RP боях/для абуза.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.4 телепорты tp">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.4] Teleport Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Выговор + Ban 5h</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет телепортов вне Non RP использования.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.5 godmode бессмертие">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.5] GodMode Abuse</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Снятие (Повтор + Ban 12h)</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет использовать godmode вне Non RP ситуаций.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.6 rp разборки вмешательство">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.6] RP Разборки</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Выговор + Ban 12h</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет вмешиваться в RP разборки как админ без обращения.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.7 структура власти превышение">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.7] Структура Власти</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Выговор + Ban 6h</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет превышения полномочий своей должности.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.8 передача оружия денег">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.8] Передача ресурсов</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Предупреждение/снятие + Ban 6h</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет передачи себе оружия/денег/привилегий.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.9 привилегии друзьям">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.9] Привилегии</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Предупреждение/снятие + Ban 6h</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет необоснованного назначения привилегий друзьям/себе.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.10 решение суда">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.10] Решение Суда</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Предупреждение + Ban 1h</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет выдавать решение без причины.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.11 приказы нарушающие правила">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.11] Незаконные Приказы</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Выговор</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет исполнения приказов, которые противоречат правилам.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.12 информирование логи слив данных">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.12] Информирование</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Выговор / снятие</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет разглашения админ-информации вне Non RP.</p>
+                        </div>
+
+                        <div class="rule-card liquid-glass-sub p-3 rounded-xl border border-white/10" data-category="6" data-search="6.13 снятие роли журнал">
+                            <div class="flex justify-between items-center mb-1"><span class="font-extrabold text-rose-300">[6.13] Снятие роли</span><span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[10px] font-bold">Выговор (Повтор - снятие)</span></div>
+                            <p class="text-slate-300 text-[11px]">Запрет снятия роли без записи в журнал.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 7: ADMIN REGULATIONS -->
+                <div class="rule-card liquid-glass-sub p-4 rounded-2xl border border-cyan-500/30 space-y-3" data-category="7" data-search="7 регламент обязанности работа с игроками права жалоба разбор">
+                    <div class="font-black text-cyan-300 text-xs tracking-wider uppercase flex items-center justify-between border-b border-white/10 pb-2">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-clipboard-check"></i> 7. РЕГЛАМЕНТ АДМИНИСТРАЦИИ NEXUS CITY RP</span>
+                        <span class="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded border border-cyan-400/30">Наказание: Предупреждение/снятие + Ban 6h</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="bg-black/40 p-3 rounded-xl border border-white/5 space-y-1">
+                            <div class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-scale-balanced text-cyan-400"></i> Обязанности:</div>
+                            <p class="text-slate-300 text-[11px]">Быть объективным и беспристрастным, не злоупотреблять полномочиями, отвечать за свои действия перед высшим составом и соблюдать правила самому.</p>
+                        </div>
+
+                        <div class="bg-black/40 p-3 rounded-xl border border-white/5 space-y-1">
+                            <div class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-users-gear text-cyan-400"></i> Работа с игроками:</div>
+                            <p class="text-slate-300 text-[11px]">Выслушивать обе стороны, не выдавать наказания на эмоциях, фиксировать все свои действия.</p>
+                        </div>
+
+                        <div class="bg-black/40 p-3 rounded-xl border border-white/5 space-y-1">
+                            <div class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-key text-cyan-400"></i> Работа с правами:</div>
+                            <p class="text-slate-300 text-[11px]">Не назначать права без веской причины, строго держать баланс полномочий.</p>
+                        </div>
+
+                        <div class="bg-black/40 p-3 rounded-xl border border-white/5 space-y-1">
+                            <div class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-headset text-cyan-400"></i> Работа с жалобами:</div>
+                            <p class="text-slate-300 text-[11px]">Разбирать каждую поступившую жалобу. Не закрывать жалобу без логического результата.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Footer -->
+            <div class="flex justify-between items-center pt-2 border-t border-white/10 shrink-0 font-mono text-[11px]">
+                <span class="text-slate-300">NEXUS CITY RP © 2026. Соблюдайте регламент проекта.</span>
+                <button onclick="closeRulesModal()" class="px-5 py-2 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-400 hover:to-rose-500 text-white font-extrabold text-xs rounded-xl transition shadow-lg shadow-rose-500/20 active:scale-95">
+                    Я ОЗНАКОМИЛСЯ
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
